@@ -1,0 +1,2263 @@
+{
+ "app": "marathon-project-madrid",
+ "v": 1,
+ "exportedAt": "2026-11-11T05:25:08.665Z",
+ "core": {
+  "brief": {
+   "easy": [
+    320,
+    340
+   ],
+   "long": [
+    360,
+    360
+   ],
+   "mp": [
+    320,
+    330
+   ],
+   "tempo": [
+    290,
+    315
+   ]
+  },
+  "createdAt": "2026-11-10T10:50:00.000Z",
+  "goal": {
+   "history": [
+    {
+     "by": "te",
+     "date": "2026-11-10",
+     "sec": 14400
+    }
+   ],
+   "sec": 14400
+  },
+  "paceHistory": [
+   {
+    "cid": "setup-easy",
+    "date": "2026-11-10",
+    "from": [
+     320,
+     340
+    ],
+    "to": [
+     360,
+     390
+    ],
+    "z": "easy"
+   },
+   {
+    "cid": "setup-long",
+    "date": "2026-11-10",
+    "from": [
+     360,
+     360
+    ],
+    "to": [
+     365,
+     395
+    ],
+    "z": "long"
+   },
+   {
+    "cid": "setup-mp",
+    "date": "2026-11-10",
+    "from": [
+     320,
+     330
+    ],
+    "to": [
+     335,
+     340
+    ],
+    "z": "mp"
+   },
+   {
+    "cid": "setup-tempo",
+    "date": "2026-11-10",
+    "from": [
+     290,
+     315
+    ],
+    "to": [
+     300,
+     310
+    ],
+    "z": "tempo"
+   }
+  ],
+  "paces": {
+   "easy": [
+    360,
+    390
+   ],
+   "hm": [
+    315,
+    320
+   ],
+   "interval": [
+    280,
+    290
+   ],
+   "long": [
+    365,
+    395
+   ],
+   "mp": [
+    335,
+    340
+   ],
+   "tempo": [
+    300,
+    310
+   ]
+  },
+  "predHistory": [
+   {
+    "d": "2026-11-10",
+    "eq": 2970,
+    "goal": 14400,
+    "high": 15631,
+    "low": 14162,
+    "plan": 14825
+   },
+   {
+    "d": "2026-11-11",
+    "eq": 2970,
+    "goal": 14400,
+    "high": 15631,
+    "low": 14162,
+    "plan": 14825
+   }
+  ],
+  "profile": {
+   "age": 22,
+   "baseKm": 15,
+   "days": {
+    "e": 3,
+    "long": 6,
+    "mon": 0,
+    "q": 1,
+    "sat": 5,
+    "str": 2,
+    "x": 4
+   },
+   "experience": "3–6 mesi di corsa",
+   "hrMax": null,
+   "injuries": "nessuno dichiarato",
+   "longestKm": 18,
+   "name": "Paolo",
+   "notes": "",
+   "runs": 3,
+   "sports": "calisthenics, nuoto",
+   "strength": "1–2"
+  },
+  "race": {
+   "date": "2027-04-25",
+   "gain": 400,
+   "km": 42.195,
+   "name": "Maratona di Madrid"
+  },
+  "ref": {
+   "date": "2026-11-10",
+   "dist": 10,
+   "eq10": 2970,
+   "sec": 2970,
+   "source": "dichiarato"
+  },
+  "v": 1,
+  "versions": [
+   {
+    "at": "2026-11-11T05:20:00.000Z",
+    "id": "v0001",
+    "label": "Piano con inizio 9 novembre (24 settimane)",
+    "n": 1
+   }
+  ]
+ },
+ "plan": {
+  "createdAt": "2026-11-11T05:20:00.000Z",
+  "sessions": [
+   {
+    "d": "2026-11-16",
+    "id": "bw01-mon",
+    "k": "mobility",
+    "ph": "base",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 1
+   },
+   {
+    "d": "2026-11-17",
+    "id": "bw01-q",
+    "k": "run",
+    "km": 6,
+    "ph": "base",
+    "s": "easy",
+    "slot": "q",
+    "st": "planned",
+    "wk": 1,
+    "x": {
+     "strides": 6
+    }
+   },
+   {
+    "d": "2026-11-18",
+    "id": "bw01-str",
+    "k": "strength",
+    "ph": "base",
+    "s": "A",
+    "slot": "str",
+    "st": "planned",
+    "wk": 1
+   },
+   {
+    "d": "2026-11-19",
+    "id": "bw01-e",
+    "k": "run",
+    "km": 6,
+    "ph": "base",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 1
+   },
+   {
+    "d": "2026-11-20",
+    "id": "bw01-x",
+    "k": "swim",
+    "ph": "base",
+    "s": "opt",
+    "slot": "x",
+    "st": "planned",
+    "wk": 1
+   },
+   {
+    "d": "2026-11-21",
+    "id": "bw01-sat",
+    "k": "rest",
+    "ph": "base",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 1
+   },
+   {
+    "d": "2026-11-22",
+    "id": "bw01-long",
+    "k": "run",
+    "km": 14,
+    "ph": "base",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 1
+   },
+   {
+    "d": "2026-11-23",
+    "id": "bw02-mon",
+    "k": "mobility",
+    "ph": "base",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 2
+   },
+   {
+    "d": "2026-11-24",
+    "id": "bw02-q",
+    "k": "run",
+    "km": 7,
+    "ph": "base",
+    "s": "hills",
+    "slot": "q",
+    "st": "planned",
+    "wk": 2,
+    "x": {
+     "reps": 6,
+     "sec": 30
+    }
+   },
+   {
+    "d": "2026-11-25",
+    "id": "bw02-str",
+    "k": "strength",
+    "ph": "base",
+    "s": "A",
+    "slot": "str",
+    "st": "planned",
+    "wk": 2
+   },
+   {
+    "d": "2026-11-26",
+    "id": "bw02-e",
+    "k": "run",
+    "km": 6,
+    "ph": "base",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 2
+   },
+   {
+    "d": "2026-11-27",
+    "id": "bw02-x",
+    "k": "swim",
+    "ph": "base",
+    "s": "opt",
+    "slot": "x",
+    "st": "planned",
+    "wk": 2
+   },
+   {
+    "d": "2026-11-28",
+    "id": "bw02-sat",
+    "k": "rest",
+    "ph": "base",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 2
+   },
+   {
+    "d": "2026-11-29",
+    "id": "bw02-long",
+    "k": "run",
+    "km": 16,
+    "ph": "base",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 2
+   },
+   {
+    "d": "2026-11-30",
+    "id": "bw03-mon",
+    "k": "mobility",
+    "ph": "base",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 3
+   },
+   {
+    "d": "2026-12-01",
+    "down": 1,
+    "id": "bw03-q",
+    "k": "run",
+    "km": 8.5,
+    "ph": "base",
+    "s": "test5",
+    "slot": "q",
+    "st": "planned",
+    "wk": 3
+   },
+   {
+    "d": "2026-12-02",
+    "id": "bw03-str",
+    "k": "strength",
+    "ph": "base",
+    "s": "A",
+    "slot": "str",
+    "st": "planned",
+    "wk": 3
+   },
+   {
+    "d": "2026-12-03",
+    "down": 1,
+    "id": "bw03-e",
+    "k": "run",
+    "km": 5,
+    "ph": "base",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 3
+   },
+   {
+    "d": "2026-12-04",
+    "id": "bw03-x",
+    "k": "swim",
+    "ph": "base",
+    "s": "opt",
+    "slot": "x",
+    "st": "planned",
+    "wk": 3
+   },
+   {
+    "d": "2026-12-05",
+    "id": "bw03-sat",
+    "k": "rest",
+    "ph": "base",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 3
+   },
+   {
+    "d": "2026-12-06",
+    "down": 1,
+    "id": "bw03-long",
+    "k": "run",
+    "km": 12,
+    "ph": "base",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 3
+   },
+   {
+    "d": "2026-12-07",
+    "id": "bw04-mon",
+    "k": "mobility",
+    "ph": "base",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 4
+   },
+   {
+    "d": "2026-12-08",
+    "id": "bw04-q",
+    "k": "run",
+    "km": 8,
+    "ph": "base",
+    "s": "fartlek",
+    "slot": "q",
+    "st": "planned",
+    "wk": 4,
+    "x": {
+     "off": 2,
+     "on": 1,
+     "reps": 6
+    }
+   },
+   {
+    "d": "2026-12-09",
+    "id": "bw04-str",
+    "k": "strength",
+    "ph": "base",
+    "s": "A",
+    "slot": "str",
+    "st": "planned",
+    "wk": 4
+   },
+   {
+    "d": "2026-12-10",
+    "id": "bw04-e",
+    "k": "run",
+    "km": 7,
+    "ph": "base",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 4
+   },
+   {
+    "d": "2026-12-11",
+    "id": "bw04-x",
+    "k": "swim",
+    "ph": "base",
+    "s": "opt",
+    "slot": "x",
+    "st": "planned",
+    "wk": 4
+   },
+   {
+    "d": "2026-12-12",
+    "id": "bw04-sat",
+    "k": "rest",
+    "ph": "base",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 4
+   },
+   {
+    "d": "2026-12-13",
+    "id": "bw04-long",
+    "k": "run",
+    "km": 17,
+    "ph": "base",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 4
+   },
+   {
+    "d": "2026-12-14",
+    "id": "bw05-mon",
+    "k": "mobility",
+    "ph": "base",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 5
+   },
+   {
+    "d": "2026-12-15",
+    "id": "bw05-q",
+    "k": "run",
+    "km": 8,
+    "ph": "base",
+    "s": "tempo",
+    "slot": "q",
+    "st": "planned",
+    "wk": 5,
+    "x": {
+     "min": 8,
+     "rec": 3,
+     "reps": 2
+    }
+   },
+   {
+    "d": "2026-12-16",
+    "id": "bw05-str",
+    "k": "strength",
+    "ph": "base",
+    "s": "A",
+    "slot": "str",
+    "st": "planned",
+    "wk": 5
+   },
+   {
+    "d": "2026-12-17",
+    "id": "bw05-e",
+    "k": "run",
+    "km": 7,
+    "ph": "base",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 5,
+    "x": {
+     "strides": 4
+    }
+   },
+   {
+    "d": "2026-12-18",
+    "id": "bw05-x",
+    "k": "swim",
+    "ph": "base",
+    "s": "opt",
+    "slot": "x",
+    "st": "planned",
+    "wk": 5
+   },
+   {
+    "d": "2026-12-19",
+    "id": "bw05-sat",
+    "k": "rest",
+    "ph": "base",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 5
+   },
+   {
+    "d": "2026-12-20",
+    "id": "bw05-long",
+    "k": "run",
+    "km": 19,
+    "ph": "base",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 5
+   },
+   {
+    "d": "2026-12-21",
+    "id": "bw06-mon",
+    "k": "mobility",
+    "ph": "base",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 6
+   },
+   {
+    "d": "2026-12-22",
+    "id": "bw06-q",
+    "k": "run",
+    "km": 8,
+    "ph": "base",
+    "s": "hills",
+    "slot": "q",
+    "st": "planned",
+    "wk": 6,
+    "x": {
+     "reps": 8,
+     "sec": 45
+    }
+   },
+   {
+    "d": "2026-12-23",
+    "id": "bw06-str",
+    "k": "strength",
+    "ph": "base",
+    "s": "A",
+    "slot": "str",
+    "st": "planned",
+    "wk": 6
+   },
+   {
+    "d": "2026-12-24",
+    "id": "bw06-e",
+    "k": "run",
+    "km": 8,
+    "ph": "base",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 6
+   },
+   {
+    "d": "2026-12-25",
+    "id": "bw06-x",
+    "k": "swim",
+    "ph": "base",
+    "s": "opt",
+    "slot": "x",
+    "st": "planned",
+    "wk": 6
+   },
+   {
+    "d": "2026-12-26",
+    "id": "bw06-sat",
+    "k": "rest",
+    "ph": "base",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 6
+   },
+   {
+    "d": "2026-12-27",
+    "id": "bw06-long",
+    "k": "run",
+    "km": 20,
+    "ph": "base",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 6
+   },
+   {
+    "d": "2026-12-28",
+    "id": "bw07-mon",
+    "k": "mobility",
+    "ph": "base",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 7
+   },
+   {
+    "d": "2026-12-29",
+    "down": 1,
+    "id": "bw07-q",
+    "k": "run",
+    "km": 7,
+    "ph": "base",
+    "s": "easy",
+    "slot": "q",
+    "st": "planned",
+    "wk": 7,
+    "x": {
+     "strides": 6
+    }
+   },
+   {
+    "d": "2026-12-30",
+    "id": "bw07-str",
+    "k": "strength",
+    "ph": "base",
+    "s": "A",
+    "slot": "str",
+    "st": "planned",
+    "wk": 7
+   },
+   {
+    "d": "2026-12-31",
+    "down": 1,
+    "id": "bw07-e",
+    "k": "run",
+    "km": 6,
+    "ph": "base",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 7
+   },
+   {
+    "d": "2027-01-01",
+    "id": "bw07-x",
+    "k": "swim",
+    "ph": "base",
+    "s": "opt",
+    "slot": "x",
+    "st": "planned",
+    "wk": 7
+   },
+   {
+    "d": "2027-01-02",
+    "id": "bw07-sat",
+    "k": "rest",
+    "ph": "base",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 7
+   },
+   {
+    "d": "2027-01-03",
+    "down": 1,
+    "id": "bw07-long",
+    "k": "run",
+    "km": 14,
+    "ph": "base",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 7
+   },
+   {
+    "d": "2027-01-04",
+    "id": "bw08-mon",
+    "k": "mobility",
+    "ph": "build",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 8
+   },
+   {
+    "d": "2027-01-05",
+    "id": "bw08-q",
+    "k": "run",
+    "km": 8,
+    "ph": "build",
+    "s": "easy",
+    "slot": "q",
+    "st": "planned",
+    "wk": 8,
+    "x": {
+     "strides": 6
+    }
+   },
+   {
+    "d": "2027-01-06",
+    "id": "bw08-str",
+    "k": "strength",
+    "ph": "build",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 8
+   },
+   {
+    "d": "2027-01-07",
+    "id": "bw08-e",
+    "k": "run",
+    "km": 8,
+    "ph": "build",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 8
+   },
+   {
+    "cond": "run4",
+    "d": "2027-01-08",
+    "id": "bw08-x",
+    "k": "run",
+    "km": 5,
+    "ph": "build",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 8
+   },
+   {
+    "d": "2027-01-09",
+    "id": "bw08-sat",
+    "k": "rest",
+    "ph": "build",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 8
+   },
+   {
+    "d": "2027-01-10",
+    "id": "bw08-long",
+    "k": "run",
+    "km": 20,
+    "ph": "build",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 8
+   },
+   {
+    "d": "2027-01-11",
+    "id": "bw09-mon",
+    "k": "mobility",
+    "ph": "build",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 9
+   },
+   {
+    "d": "2027-01-12",
+    "id": "bw09-q",
+    "k": "run",
+    "km": 9,
+    "ph": "build",
+    "s": "tempo",
+    "slot": "q",
+    "st": "planned",
+    "wk": 9,
+    "x": {
+     "min": 8,
+     "rec": 3,
+     "reps": 3
+    }
+   },
+   {
+    "d": "2027-01-13",
+    "id": "bw09-str",
+    "k": "strength",
+    "ph": "build",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 9
+   },
+   {
+    "d": "2027-01-14",
+    "id": "bw09-e",
+    "k": "run",
+    "km": 8,
+    "ph": "build",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 9
+   },
+   {
+    "cond": "run4",
+    "d": "2027-01-15",
+    "id": "bw09-x",
+    "k": "run",
+    "km": 5,
+    "ph": "build",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 9
+   },
+   {
+    "d": "2027-01-16",
+    "id": "bw09-sat",
+    "k": "rest",
+    "ph": "build",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 9
+   },
+   {
+    "d": "2027-01-17",
+    "id": "bw09-long",
+    "k": "run",
+    "km": 22,
+    "ph": "build",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 9
+   },
+   {
+    "d": "2027-01-18",
+    "id": "bw10-mon",
+    "k": "mobility",
+    "ph": "build",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 10
+   },
+   {
+    "d": "2027-01-19",
+    "id": "bw10-q",
+    "k": "run",
+    "km": 9,
+    "ph": "build",
+    "s": "hills",
+    "slot": "q",
+    "st": "planned",
+    "wk": 10,
+    "x": {
+     "reps": 8,
+     "sec": 60
+    }
+   },
+   {
+    "d": "2027-01-20",
+    "id": "bw10-str",
+    "k": "strength",
+    "ph": "build",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 10
+   },
+   {
+    "d": "2027-01-21",
+    "id": "bw10-e",
+    "k": "run",
+    "km": 9,
+    "ph": "build",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 10
+   },
+   {
+    "cond": "run4",
+    "d": "2027-01-22",
+    "id": "bw10-x",
+    "k": "run",
+    "km": 6,
+    "ph": "build",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 10
+   },
+   {
+    "d": "2027-01-23",
+    "id": "bw10-sat",
+    "k": "rest",
+    "ph": "build",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 10
+   },
+   {
+    "d": "2027-01-24",
+    "id": "bw10-long",
+    "k": "run",
+    "km": 24,
+    "ph": "build",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 10
+   },
+   {
+    "d": "2027-01-25",
+    "id": "bw11-mon",
+    "k": "mobility",
+    "ph": "build",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 11
+   },
+   {
+    "d": "2027-01-26",
+    "down": 1,
+    "id": "bw11-q",
+    "k": "run",
+    "km": 8,
+    "ph": "build",
+    "s": "easy",
+    "slot": "q",
+    "st": "planned",
+    "wk": 11,
+    "x": {
+     "strides": 6
+    }
+   },
+   {
+    "d": "2027-01-27",
+    "id": "bw11-str",
+    "k": "strength",
+    "ph": "build",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 11
+   },
+   {
+    "d": "2027-01-28",
+    "down": 1,
+    "id": "bw11-e",
+    "k": "run",
+    "km": 7,
+    "ph": "build",
+    "s": "fartlek",
+    "slot": "e",
+    "st": "planned",
+    "wk": 11,
+    "x": {
+     "off": 2,
+     "on": 1,
+     "reps": 4
+    }
+   },
+   {
+    "d": "2027-01-29",
+    "id": "bw11-x",
+    "k": "rest",
+    "ph": "build",
+    "s": "pretest",
+    "slot": "x",
+    "st": "planned",
+    "wk": 11
+   },
+   {
+    "d": "2027-01-30",
+    "id": "bw11-sat",
+    "k": "rest",
+    "ph": "build",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 11
+   },
+   {
+    "d": "2027-01-31",
+    "down": 1,
+    "id": "bw11-long",
+    "k": "run",
+    "km": 15,
+    "ph": "build",
+    "s": "test10",
+    "slot": "long",
+    "st": "planned",
+    "wk": 11
+   },
+   {
+    "d": "2027-02-01",
+    "id": "bw12-mon",
+    "k": "mobility",
+    "ph": "build",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 12
+   },
+   {
+    "d": "2027-02-02",
+    "id": "bw12-q",
+    "k": "run",
+    "km": 10,
+    "ph": "build",
+    "s": "tempo",
+    "slot": "q",
+    "st": "planned",
+    "wk": 12,
+    "x": {
+     "min": 12,
+     "rec": 3,
+     "reps": 2
+    }
+   },
+   {
+    "d": "2027-02-03",
+    "id": "bw12-str",
+    "k": "strength",
+    "ph": "build",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 12
+   },
+   {
+    "d": "2027-02-04",
+    "id": "bw12-e",
+    "k": "run",
+    "km": 10,
+    "ph": "build",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 12
+   },
+   {
+    "cond": "run4",
+    "d": "2027-02-05",
+    "id": "bw12-x",
+    "k": "run",
+    "km": 6,
+    "ph": "build",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 12
+   },
+   {
+    "d": "2027-02-06",
+    "id": "bw12-sat",
+    "k": "rest",
+    "ph": "build",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 12
+   },
+   {
+    "d": "2027-02-07",
+    "id": "bw12-long",
+    "k": "run",
+    "km": 25,
+    "ph": "build",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 12
+   },
+   {
+    "d": "2027-02-08",
+    "id": "bw13-mon",
+    "k": "mobility",
+    "ph": "build",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 13
+   },
+   {
+    "d": "2027-02-09",
+    "id": "bw13-q",
+    "k": "run",
+    "km": 10,
+    "ph": "build",
+    "s": "hills",
+    "slot": "q",
+    "st": "planned",
+    "wk": 13,
+    "x": {
+     "reps": 6,
+     "sec": 120
+    }
+   },
+   {
+    "d": "2027-02-10",
+    "id": "bw13-str",
+    "k": "strength",
+    "ph": "build",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 13
+   },
+   {
+    "d": "2027-02-11",
+    "id": "bw13-e",
+    "k": "run",
+    "km": 11,
+    "ph": "build",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 13
+   },
+   {
+    "cond": "run4",
+    "d": "2027-02-12",
+    "id": "bw13-x",
+    "k": "run",
+    "km": 6,
+    "ph": "build",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 13
+   },
+   {
+    "d": "2027-02-13",
+    "id": "bw13-sat",
+    "k": "rest",
+    "ph": "build",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 13
+   },
+   {
+    "d": "2027-02-14",
+    "id": "bw13-long",
+    "k": "run",
+    "km": 27,
+    "ph": "build",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 13,
+    "x": {
+     "up": 1
+    }
+   },
+   {
+    "d": "2027-02-15",
+    "id": "bw14-mon",
+    "k": "mobility",
+    "ph": "spec",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 14
+   },
+   {
+    "d": "2027-02-16",
+    "id": "bw14-q",
+    "k": "run",
+    "km": 11,
+    "ph": "spec",
+    "s": "tempo",
+    "slot": "q",
+    "st": "planned",
+    "wk": 14,
+    "x": {
+     "min": 20,
+     "rec": 0,
+     "reps": 1
+    }
+   },
+   {
+    "d": "2027-02-17",
+    "id": "bw14-str",
+    "k": "strength",
+    "ph": "spec",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 14
+   },
+   {
+    "d": "2027-02-18",
+    "id": "bw14-e",
+    "k": "run",
+    "km": 12,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 14
+   },
+   {
+    "cond": "run4",
+    "d": "2027-02-19",
+    "id": "bw14-x",
+    "k": "run",
+    "km": 6,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 14
+   },
+   {
+    "d": "2027-02-20",
+    "id": "bw14-sat",
+    "k": "rest",
+    "ph": "spec",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 14
+   },
+   {
+    "d": "2027-02-21",
+    "id": "bw14-long",
+    "k": "run",
+    "km": 29,
+    "ph": "spec",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 14
+   },
+   {
+    "d": "2027-02-22",
+    "id": "bw15-mon",
+    "k": "mobility",
+    "ph": "spec",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 15
+   },
+   {
+    "d": "2027-02-23",
+    "down": 1,
+    "id": "bw15-q",
+    "k": "run",
+    "km": 8,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "q",
+    "st": "planned",
+    "wk": 15,
+    "x": {
+     "strides": 6
+    }
+   },
+   {
+    "d": "2027-02-24",
+    "id": "bw15-str",
+    "k": "strength",
+    "ph": "spec",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 15
+   },
+   {
+    "d": "2027-02-25",
+    "down": 1,
+    "id": "bw15-e",
+    "k": "run",
+    "km": 7,
+    "ph": "spec",
+    "s": "hmp",
+    "slot": "e",
+    "st": "planned",
+    "wk": 15,
+    "x": {
+     "rec": 2,
+     "repKm": 1,
+     "reps": 3
+    }
+   },
+   {
+    "d": "2027-02-26",
+    "id": "bw15-x",
+    "k": "rest",
+    "ph": "spec",
+    "s": "pretest",
+    "slot": "x",
+    "st": "planned",
+    "wk": 15
+   },
+   {
+    "d": "2027-02-27",
+    "id": "bw15-sat",
+    "k": "rest",
+    "ph": "spec",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 15
+   },
+   {
+    "d": "2027-02-28",
+    "down": 1,
+    "id": "bw15-long",
+    "k": "run",
+    "km": 24,
+    "ph": "spec",
+    "s": "testhm",
+    "slot": "long",
+    "st": "planned",
+    "wk": 15
+   },
+   {
+    "d": "2027-03-01",
+    "id": "bw16-mon",
+    "k": "mobility",
+    "ph": "spec",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 16
+   },
+   {
+    "d": "2027-03-02",
+    "down": 1,
+    "id": "bw16-q",
+    "k": "run",
+    "km": 8,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "q",
+    "st": "planned",
+    "wk": 16,
+    "x": {
+     "soft": 1
+    }
+   },
+   {
+    "d": "2027-03-03",
+    "id": "bw16-str",
+    "k": "strength",
+    "ph": "spec",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 16
+   },
+   {
+    "d": "2027-03-04",
+    "down": 1,
+    "id": "bw16-e",
+    "k": "run",
+    "km": 10,
+    "ph": "spec",
+    "s": "mp",
+    "slot": "e",
+    "st": "planned",
+    "wk": 16,
+    "x": {
+     "blocks": [
+      5
+     ],
+     "rec": 0
+    }
+   },
+   {
+    "cond": "run4",
+    "d": "2027-03-05",
+    "down": 1,
+    "id": "bw16-x",
+    "k": "run",
+    "km": 6,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 16
+   },
+   {
+    "d": "2027-03-06",
+    "id": "bw16-sat",
+    "k": "rest",
+    "ph": "spec",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 16
+   },
+   {
+    "d": "2027-03-07",
+    "down": 1,
+    "id": "bw16-long",
+    "k": "run",
+    "km": 22,
+    "ph": "spec",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 16
+   },
+   {
+    "d": "2027-03-08",
+    "id": "bw17-mon",
+    "k": "mobility",
+    "ph": "spec",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 17
+   },
+   {
+    "d": "2027-03-09",
+    "id": "bw17-q",
+    "k": "run",
+    "km": 11,
+    "ph": "spec",
+    "s": "tempo",
+    "slot": "q",
+    "st": "planned",
+    "wk": 17,
+    "x": {
+     "min": 10,
+     "rec": 2.5,
+     "reps": 3
+    }
+   },
+   {
+    "d": "2027-03-10",
+    "id": "bw17-str",
+    "k": "strength",
+    "ph": "spec",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 17
+   },
+   {
+    "d": "2027-03-11",
+    "id": "bw17-e",
+    "k": "run",
+    "km": 12,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 17
+   },
+   {
+    "cond": "run4",
+    "d": "2027-03-12",
+    "id": "bw17-x",
+    "k": "run",
+    "km": 7,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 17
+   },
+   {
+    "d": "2027-03-13",
+    "id": "bw17-sat",
+    "k": "rest",
+    "ph": "spec",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 17
+   },
+   {
+    "d": "2027-03-14",
+    "id": "bw17-long",
+    "k": "run",
+    "km": 32,
+    "ph": "spec",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 17,
+    "x": {
+     "prog": 5
+    }
+   },
+   {
+    "d": "2027-03-15",
+    "id": "bw18-mon",
+    "k": "mobility",
+    "ph": "spec",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 18
+   },
+   {
+    "d": "2027-03-16",
+    "down": 1,
+    "id": "bw18-q",
+    "k": "run",
+    "km": 9,
+    "ph": "spec",
+    "s": "hills",
+    "slot": "q",
+    "st": "planned",
+    "wk": 18,
+    "x": {
+     "reps": 6,
+     "sec": 60
+    }
+   },
+   {
+    "d": "2027-03-17",
+    "id": "bw18-str",
+    "k": "strength",
+    "ph": "spec",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 18
+   },
+   {
+    "d": "2027-03-18",
+    "down": 1,
+    "id": "bw18-e",
+    "k": "run",
+    "km": 9,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 18
+   },
+   {
+    "cond": "run4",
+    "d": "2027-03-19",
+    "down": 1,
+    "id": "bw18-x",
+    "k": "run",
+    "km": 5,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 18
+   },
+   {
+    "d": "2027-03-20",
+    "id": "bw18-sat",
+    "k": "rest",
+    "ph": "spec",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 18
+   },
+   {
+    "d": "2027-03-21",
+    "down": 1,
+    "id": "bw18-long",
+    "k": "run",
+    "km": 22,
+    "ph": "spec",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 18,
+    "x": {
+     "mp": 12
+    }
+   },
+   {
+    "d": "2027-03-22",
+    "id": "bw19-mon",
+    "k": "mobility",
+    "ph": "spec",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 19
+   },
+   {
+    "d": "2027-03-23",
+    "id": "bw19-q",
+    "k": "run",
+    "km": 10,
+    "ph": "spec",
+    "s": "tempo",
+    "slot": "q",
+    "st": "planned",
+    "wk": 19,
+    "x": {
+     "min": 10,
+     "rec": 3,
+     "reps": 2
+    }
+   },
+   {
+    "d": "2027-03-24",
+    "id": "bw19-str",
+    "k": "strength",
+    "ph": "spec",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 19
+   },
+   {
+    "d": "2027-03-25",
+    "id": "bw19-e",
+    "k": "run",
+    "km": 12,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 19
+   },
+   {
+    "cond": "run4",
+    "d": "2027-03-26",
+    "id": "bw19-x",
+    "k": "run",
+    "km": 6,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 19
+   },
+   {
+    "d": "2027-03-27",
+    "id": "bw19-sat",
+    "k": "rest",
+    "ph": "spec",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 19
+   },
+   {
+    "cond": "long35",
+    "d": "2027-03-28",
+    "id": "bw19-long",
+    "k": "run",
+    "km": 35,
+    "ph": "spec",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 19
+   },
+   {
+    "d": "2027-03-29",
+    "id": "bw20-mon",
+    "k": "mobility",
+    "ph": "spec",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 20
+   },
+   {
+    "d": "2027-03-30",
+    "down": 1,
+    "id": "bw20-q",
+    "k": "run",
+    "km": 8,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "q",
+    "st": "planned",
+    "wk": 20,
+    "x": {
+     "soft": 1
+    }
+   },
+   {
+    "d": "2027-03-31",
+    "id": "bw20-str",
+    "k": "strength",
+    "ph": "spec",
+    "s": "B",
+    "slot": "str",
+    "st": "planned",
+    "wk": 20
+   },
+   {
+    "d": "2027-04-01",
+    "down": 1,
+    "id": "bw20-e",
+    "k": "run",
+    "km": 10,
+    "ph": "spec",
+    "s": "mp",
+    "slot": "e",
+    "st": "planned",
+    "wk": 20,
+    "x": {
+     "blocks": [
+      4
+     ],
+     "rec": 0
+    }
+   },
+   {
+    "cond": "run4",
+    "d": "2027-04-02",
+    "down": 1,
+    "id": "bw20-x",
+    "k": "run",
+    "km": 5,
+    "ph": "spec",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 20
+   },
+   {
+    "d": "2027-04-03",
+    "id": "bw20-sat",
+    "k": "rest",
+    "ph": "spec",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 20
+   },
+   {
+    "d": "2027-04-04",
+    "down": 1,
+    "id": "bw20-long",
+    "k": "run",
+    "km": 22,
+    "ph": "spec",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 20,
+    "x": {
+     "mp": 12,
+     "up": 1
+    }
+   },
+   {
+    "d": "2027-04-05",
+    "id": "bw21-mon",
+    "k": "mobility",
+    "ph": "taper",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 21
+   },
+   {
+    "d": "2027-04-06",
+    "down": 1,
+    "id": "bw21-q",
+    "k": "run",
+    "km": 9,
+    "ph": "taper",
+    "s": "mp",
+    "slot": "q",
+    "st": "planned",
+    "wk": 21,
+    "x": {
+     "blocks": [
+      3,
+      3
+     ],
+     "rec": 3
+    }
+   },
+   {
+    "d": "2027-04-07",
+    "id": "bw21-str",
+    "k": "strength",
+    "ph": "taper",
+    "s": "C",
+    "slot": "str",
+    "st": "planned",
+    "wk": 21
+   },
+   {
+    "d": "2027-04-08",
+    "down": 1,
+    "id": "bw21-e",
+    "k": "run",
+    "km": 8,
+    "ph": "taper",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 21
+   },
+   {
+    "cond": "run4",
+    "d": "2027-04-09",
+    "down": 1,
+    "id": "bw21-x",
+    "k": "run",
+    "km": 5,
+    "ph": "taper",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 21
+   },
+   {
+    "d": "2027-04-10",
+    "id": "bw21-sat",
+    "k": "rest",
+    "ph": "taper",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 21
+   },
+   {
+    "d": "2027-04-11",
+    "down": 1,
+    "id": "bw21-long",
+    "k": "run",
+    "km": 18,
+    "ph": "taper",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 21,
+    "x": {
+     "mp": 6
+    }
+   },
+   {
+    "d": "2027-04-12",
+    "id": "bw22-mon",
+    "k": "mobility",
+    "ph": "taper",
+    "s": "swimopt",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 22
+   },
+   {
+    "d": "2027-04-13",
+    "down": 1,
+    "id": "bw22-q",
+    "k": "run",
+    "km": 8,
+    "ph": "taper",
+    "s": "mp",
+    "slot": "q",
+    "st": "planned",
+    "wk": 22,
+    "x": {
+     "blocks": [
+      1.5,
+      1.5,
+      1.5
+     ],
+     "rec": 2
+    }
+   },
+   {
+    "d": "2027-04-14",
+    "id": "bw22-str",
+    "k": "strength",
+    "ph": "taper",
+    "s": "C",
+    "slot": "str",
+    "st": "planned",
+    "wk": 22
+   },
+   {
+    "d": "2027-04-15",
+    "down": 1,
+    "id": "bw22-e",
+    "k": "run",
+    "km": 7,
+    "ph": "taper",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 22,
+    "x": {
+     "strides": 4
+    }
+   },
+   {
+    "cond": "run4",
+    "d": "2027-04-16",
+    "down": 1,
+    "id": "bw22-x",
+    "k": "run",
+    "km": 4,
+    "ph": "taper",
+    "s": "easy",
+    "slot": "x",
+    "st": "planned",
+    "wk": 22
+   },
+   {
+    "d": "2027-04-17",
+    "id": "bw22-sat",
+    "k": "rest",
+    "ph": "taper",
+    "s": "prelong",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 22
+   },
+   {
+    "d": "2027-04-18",
+    "down": 1,
+    "id": "bw22-long",
+    "k": "run",
+    "km": 12,
+    "ph": "taper",
+    "s": "long",
+    "slot": "long",
+    "st": "planned",
+    "wk": 22
+   },
+   {
+    "d": "2027-04-19",
+    "id": "bw23-mon",
+    "k": "rest",
+    "ph": "race",
+    "s": "std",
+    "slot": "mon",
+    "st": "planned",
+    "wk": 23
+   },
+   {
+    "d": "2027-04-20",
+    "down": 1,
+    "id": "bw23-q",
+    "k": "run",
+    "km": 7,
+    "ph": "race",
+    "s": "mp",
+    "slot": "q",
+    "st": "planned",
+    "wk": 23,
+    "x": {
+     "blocks": [
+      3
+     ],
+     "rec": 0
+    }
+   },
+   {
+    "d": "2027-04-21",
+    "id": "bw23-str",
+    "k": "mobility",
+    "ph": "race",
+    "s": "race",
+    "slot": "str",
+    "st": "planned",
+    "wk": 23
+   },
+   {
+    "d": "2027-04-22",
+    "down": 1,
+    "id": "bw23-e",
+    "k": "run",
+    "km": 5,
+    "ph": "race",
+    "s": "easy",
+    "slot": "e",
+    "st": "planned",
+    "wk": 23,
+    "x": {
+     "strides": 4
+    }
+   },
+   {
+    "d": "2027-04-23",
+    "id": "bw23-x",
+    "k": "rest",
+    "ph": "race",
+    "s": "pretest",
+    "slot": "x",
+    "st": "planned",
+    "wk": 23
+   },
+   {
+    "d": "2027-04-24",
+    "down": 1,
+    "id": "bw23-sat",
+    "k": "run",
+    "km": 3,
+    "ph": "race",
+    "s": "shake",
+    "slot": "sat",
+    "st": "planned",
+    "wk": 23
+   },
+   {
+    "d": "2027-04-25",
+    "down": 1,
+    "id": "bw23-long",
+    "k": "run",
+    "km": 42.195,
+    "ph": "race",
+    "s": "race",
+    "slot": "long",
+    "st": "planned",
+    "wk": 23
+   }
+  ],
+  "v": 2
+ },
+ "workouts": {},
+ "checkins": {},
+ "changes": {
+  "restart-1116": {
+   "at": "2026-11-11T05:20:01.000Z",
+   "cat": "plan",
+   "date": "2026-11-11",
+   "id": "restart-1116",
+   "impact": "Il piano precedente è salvato come versione 1.",
+   "key": "restart-1116",
+   "kind": "event",
+   "ops": [],
+   "status": "info",
+   "title": "Inizio spostato a lunedì 16 novembre",
+   "why": [
+    "Richiesta tua",
+    "23 settimane: base 1–7, costruzione 8–13, specifico 14–20, scarico 21–22, gara 23",
+    "Prima settimana 26 km con lungo da 14 km; picco 63 km",
+    "Test e lungo da 35 km restano alle stesse date"
+   ]
+  },
+  "rule-recovery": {
+   "at": "2026-11-11T05:20:02.000Z",
+   "cat": "plan",
+   "date": "2026-11-11",
+   "id": "rule-recovery",
+   "impact": "Ogni recupero finisce qui e si può annullare.",
+   "key": "rule-recovery",
+   "kind": "event",
+   "ops": [],
+   "status": "info",
+   "title": "Nuova regola: le corse saltate si recuperano",
+   "why": [
+    "Richiesta tua: sostituisce la regola del brief che vietava il recupero",
+    "La corsa saltata va nel primo giorno adatto e il resto si tara: niente qualità il giorno dopo, forza leggera nello stesso giorno, corse facili ridotte se la settimana supera di oltre il 15% i km previsti",
+    "Non si recupera con dolore o malattia, negli ultimi 10 giorni, dopo due recuperi in 7 giorni, o se non c’è un giorno adatto"
+   ]
+  },
+  "setup-easy": {
+   "at": "2026-11-10T10:50:02.000Z",
+   "cat": "pace",
+   "date": "2026-11-10",
+   "id": "setup-easy",
+   "impact": "Correre piano le corse facili è ciò che permette di passare da 15 a 60 km a settimana senza infortuni. Se preferisci i valori del brief puoi annullare.",
+   "key": "setup-easy",
+   "kind": "setup",
+   "ops": [
+    {
+     "from": [
+      320,
+      340
+     ],
+     "t": "pace",
+     "to": [
+      360,
+      390
+     ],
+     "z": "easy"
+    }
+   ],
+   "status": "applied",
+   "title": "Corse facili più lente rispetto al brief",
+   "why": [
+    "Il tuo 10 km è a circa 5:00/km con sforzo medio-alto: 5:20–5:40 è solo il 7–13% più lento, quindi una corsa media e non facile",
+    "Una corsa facile sta di solito il 20–30% sopra il ritmo dei 10 km",
+    "Nel brief il lungo è a 6:00/km: le corse facili non possono essere più veloci del lungo"
+   ]
+  },
+  "setup-long": {
+   "at": "2026-11-10T10:50:03.000Z",
+   "cat": "pace",
+   "date": "2026-11-10",
+   "id": "setup-long",
+   "impact": "I lunghi si valutano su sforzo e completamento più che sul ritmo.",
+   "key": "setup-long",
+   "kind": "setup",
+   "ops": [
+    {
+     "from": [
+      360,
+      360
+     ],
+     "t": "pace",
+     "to": [
+      365,
+      395
+     ],
+     "z": "long"
+    }
+   ],
+   "status": "applied",
+   "title": "Lungo: da un ritmo fisso a un intervallo",
+   "why": [
+    "6:00/km resta dentro l’intervallo come limite veloce",
+    "Su percorsi mossi e con la fatica dei chilometri il ritmo deve poter scendere senza che la seduta sembri fallita"
+   ]
+  },
+  "setup-long35": {
+   "at": "2026-11-10T10:50:06.000Z",
+   "cat": "plan",
+   "date": "2026-11-10",
+   "id": "setup-long35",
+   "impact": "Lo confermo solo se sono rispettati tutti i criteri in Obiettivi; in caso contrario il lungo massimo si ferma a 32 km, già previsto il 14 marzo.",
+   "key": "setup-long35",
+   "kind": "event",
+   "ops": [],
+   "status": "info",
+   "title": "Lungo da 35 km in calendario, ma condizionale",
+   "why": [
+    "Previsto il 28 marzo, quattro settimane prima della gara",
+    "Durata stimata 3 h 42 al ritmo dei lunghi: oltre le 3 ore il costo di recupero e il rischio di infortunio crescono più del beneficio",
+    "Con 4 corse a settimana un 35 km vale più di metà del volume settimanale"
+   ]
+  },
+  "setup-mp": {
+   "at": "2026-11-10T10:50:04.000Z",
+   "cat": "pace",
+   "date": "2026-11-10",
+   "id": "setup-mp",
+   "impact": "I blocchi a ritmo maratona si corrono a 5:35–5:40/km. Il valore si rivede dopo il test di mezza maratona.",
+   "key": "setup-mp",
+   "kind": "setup",
+   "ops": [
+    {
+     "from": [
+      320,
+      330
+     ],
+     "t": "pace",
+     "to": [
+      335,
+      340
+     ],
+     "z": "mp"
+    }
+   ],
+   "status": "applied",
+   "title": "Ritmo maratona allineato al sub-4",
+   "why": [
+    "5:20–5:30/km corrisponde a una maratona in 3:45–3:52, non al sub-4",
+    "Il sub-4 richiede 5:41/km di media; con il percorso di Madrid e i metri in più misurati dal GPS serve un riferimento di 5:35–5:40",
+    "Per una prima maratona, partire a ritmo da 3:50 è il modo più comune di saltare al km 30"
+   ]
+  },
+  "setup-plan": {
+   "at": "2026-11-10T10:50:01.000Z",
+   "cat": "plan",
+   "date": "2026-11-10",
+   "id": "setup-plan",
+   "impact": "Ogni settimana viene confrontata con i chilometri registrati davvero prima di confermare la progressione.",
+   "key": "setup-plan",
+   "kind": "event",
+   "ops": [],
+   "status": "info",
+   "title": "Piano di 24 settimane creato",
+   "why": [
+    "Dal 9 novembre 2026 alla Maratona di Madrid del 25 aprile 2027",
+    "Base (settimane 1–8, 3 corse), costruzione (9–14), specifico (15–21), scarico finale (22–24)",
+    "Volume da 23 a circa 63 km a settimana, con una settimana di scarico ogni tre o quattro",
+    "Test: 5 km il 1 dicembre, 10 km il 31 gennaio, mezza maratona il 28 febbraio"
+   ]
+  },
+  "setup-tempo": {
+   "at": "2026-11-10T10:50:05.000Z",
+   "cat": "pace",
+   "date": "2026-11-10",
+   "id": "setup-tempo",
+   "impact": "Le sedute di soglia restano “comodamente dure” e non diventano gare.",
+   "key": "setup-tempo",
+   "kind": "setup",
+   "ops": [
+    {
+     "from": [
+      290,
+      315
+     ],
+     "t": "pace",
+     "to": [
+      300,
+      310
+     ],
+     "z": "tempo"
+    }
+   ],
+   "status": "applied",
+   "title": "Ritmo soglia ristretto",
+   "why": [
+    "4:50/km è già il tuo ritmo gara sui 10 km: troppo veloce per una seduta di soglia",
+    "La soglia sta di solito l’1–4% sopra il ritmo dei 10 km"
+   ]
+  }
+ }
+}
