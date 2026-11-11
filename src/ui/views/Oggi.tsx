@@ -1,7 +1,9 @@
+import { useSyncExternalStore } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as P from '../../domain/plan';
 import * as E from '../../domain/engine';
 import { cap1, dlong, hm } from '../../lib/format';
+import { applyUpdate, onPwa, updateReady } from '../../lib/pwa';
 import { Chip, Dot, hasPaceLine, Head, Ic, levelTone, PaceLine, RATE, StatusChips, wAsSession, wTitle } from '../bits';
 import { useApp } from '../ctx';
 
@@ -17,6 +19,8 @@ export default function Oggi() {
   const state = app.st(), core = S.core!, pc = core.paces, first = S.plan!.sessions[0].d;
   const wk = E.weekOf(state, P.mondayOf(t), t), pr = E.predict(state, t), l35 = E.long35Criteria(state, t), prep = E.prepStatus(state, t), fat = E.fatigueStatus(state, t), al = E.alerts(state, t), pend = app.pendingChanges();
   const d28 = P.addDays(t, -27); let km28 = 0; app.liveWorkouts().forEach(w => { if (w.k === 'run' && w.date >= d28 && w.date <= t) km28 += E.runKm(w); });
+
+  const update = useSyncExternalStore(onPwa, updateReady);
 
   const ss = app.sessionsOn(t), main = ss.filter(s => s.k !== 'rest')[0] || ss[0];
   let todayCard;
@@ -43,6 +47,7 @@ export default function Oggi() {
   const lp = Math.min(100, l35.longest / 35 * 100);
   const weeks = E.allWeeks(state, t), mx = Math.max.apply(null, weeks.map(w => w.ph === 'race' ? 0 : w.planKm).concat([1]));
   const banners = <>
+    {update ? <button className="banner" onClick={applyUpdate}><Ic n="info" /><span>Aggiornamento pronto</span><Ic n="chevR" /></button> : null}
     <SyncBanner />
     {al.map((a, i) => { const tone = a.lvl === 'crit' ? ' crit' : a.lvl === 'warn' ? ' warn' : '', inner = <><Ic n={a.lvl === 'info' ? 'info' : 'alert'} /><span>{a.text}</span></>; return a.act ? <button key={i} className={'banner' + tone} onClick={() => openSheet({ type: 'stale' })}>{inner}<Ic n="chevR" /></button> : <div key={i} className={'banner' + tone}>{inner}</div>; })}
     {pend.length ? <Link className="banner" to="/coach"><Ic n="coach" /><span>{pend.length === 1 ? pend[0].title : pend.length + ' proposte del coach'}</span><Ic n="chevR" /></Link> : null}
@@ -51,7 +56,7 @@ export default function Oggi() {
   return <>
     <Head title="Oggi" />
     <div className="grid two">
-      {!account.status.email || (account.status.error && !account.status.pending) || al.length || pend.length ? <div className="stack span2">{banners}</div> : null}
+      {update || !account.status.email || (account.status.error && !account.status.pending) || al.length || pend.length ? <div className="stack span2">{banners}</div> : null}
       {todayCard}
       {near}
       <div className="stats span2">
