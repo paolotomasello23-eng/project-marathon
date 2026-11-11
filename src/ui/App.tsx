@@ -4,6 +4,7 @@ import type { Actions } from '../data/actions';
 import type { Store } from '../data/store';
 import type { Sync } from '../data/sync';
 import { today } from '../lib/clock';
+import { checkReminder } from '../lib/reminders';
 import { Ic } from './bits';
 import { type AccountApi, type AppCtx, Ctx, type SheetState } from './ctx';
 import { Frame } from './Frame';
@@ -73,6 +74,14 @@ export function App({ store, app, sync }: { store: Store; app: Actions; sync: Sy
     document.addEventListener('visibilitychange', vis);
     return () => document.removeEventListener('visibilitychange', vis);
   }, [app, ready, t]);
+
+  // promemoria: all'avvio, al cambio di giorno, quando l'app torna in primo piano e quando cambia il piano
+  const rev = store.getRev();
+  useEffect(() => {
+    if (!ready) return;
+    const id = window.setTimeout(() => { void checkReminder(app, t); }, 1500);
+    return () => window.clearTimeout(id);
+  }, [app, ready, t, rev]);
 
   const ctx = useMemo<AppCtx>(() => ({ store, app, t, sheet, openSheet: setSheet, closeSheet: () => setSheet(null), account }), [store, app, t, sheet, account]);
   return <Ctx.Provider value={ctx}><BrowserRouter>

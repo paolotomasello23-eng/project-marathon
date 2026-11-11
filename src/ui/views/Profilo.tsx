@@ -1,8 +1,10 @@
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import * as P from '../../domain/plan';
 import * as E from '../../domain/engine';
 import { cap1, num } from '../../lib/format';
 import { saveFile } from '../../lib/download';
+import { planIcs } from '../../lib/ics';
+import { disableReminders, enableReminders, type ReminderState, reminderState } from '../../lib/reminders';
 import { Chip, Head } from '../bits';
 import { toast, useApp } from '../ctx';
 import { ImportBox } from '../ImportBox';
@@ -107,8 +109,21 @@ function Dati() {
     <div className="btns">
       <button className="btn" onClick={() => { saveFile('maratona-madrid-backup-' + t + '.json', JSON.stringify(app.exportObject(), null, 1), 'application/json'); toast('File salvato.'); }}>Backup</button>
       <button className="btn" onClick={() => { saveFile('maratona-madrid-allenamenti-' + t + '.csv', app.csv(), 'text/csv;charset=utf-8'); toast('File salvato.'); }}>CSV</button>
+      <button className="btn" onClick={() => { saveFile('madrid27-piano.ics', planIcs(app.S.plan!.sessions, s => app.describe(s), new Date(), app.S.core!.race.name || 'Madrid 27'), 'text/calendar;charset=utf-8'); toast('File salvato.'); }}>Calendario (.ics)</button>
     </div>
     <ImportBox label="Ripristina backup" />
+  </article>;
+}
+
+function Promemoria() {
+  const { app, t } = useApp(), [st, setSt] = useState<ReminderState | null>(null);
+  useEffect(() => { let live = true; void reminderState(app.store.db).then(x => { if (live) setSt(x); }); return () => { live = false; }; }, [app]);
+  if (!st) return null;
+  const label = { on: 'Attivi', off: 'Spenti', blocked: 'Bloccati', unsupported: 'Non disponibili' }[st];
+  return <article className="card">
+    <div className="row between"><h2>Promemoria</h2><Chip tone={st === 'on' ? 'ok' : st === 'blocked' ? 'warn' : ''}>{label}</Chip></div>
+    {st === 'on' ? <button className="btn" onClick={async () => setSt(await disableReminders(app.store.db))}>Disattiva</button>
+      : st === 'off' ? <button className="btn" onClick={async () => { const r = await enableReminders(app, t); setSt(r); if (r === 'blocked') toast('Notifiche bloccate: riattivale dalle impostazioni del dispositivo.'); }}>Attiva</button> : null}
   </article>;
 }
 
@@ -121,9 +136,11 @@ export default function Profilo() {
       <Gara />
       <Dati />
       <AccountCard />
+      <Promemoria />
       <details className="grp"><summary>Limiti</summary><div className="body prose"><ul>
         <li>Analisi e proposte seguono regole fisse.</li>
         <li>Carico, ritmo in piano e previsione sono stime.</li>
+        <li>Promemoria: alla prima apertura della giornata; ad app chiusa solo dove il dispositivo lo consente.</li>
         <li>Niente import da orologio o Strava.</li>
         <li>Senza account i dati restano solo su questo dispositivo.</li>
       </ul></div></details>

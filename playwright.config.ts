@@ -13,7 +13,9 @@ export default defineConfig({
   timeout: 30000,
   use: { locale: 'it-IT', timezoneId: 'Europe/Rome', viewport: { width: 390, height: 844 }, trace: 'off' },
   projects: [
-    { name: 'app', testIgnore: /sync\.spec\.ts/, use: { baseURL: 'http://localhost:4173' } },
+    { name: 'app', testIgnore: /(sync|reminders)\.spec\.ts/, use: { baseURL: 'http://localhost:4173' } },
+    // le notifiche esistono solo nel Chromium completo (nuova modalità headless), non in quello ridotto
+    { name: 'notifiche', testMatch: /reminders\.spec\.ts/, use: { baseURL: 'http://localhost:4173', channel: 'chromium' } },
     { name: 'sync', testMatch: /sync\.spec\.ts/, use: { baseURL: 'http://localhost:4174', serviceWorkers: 'block' } }
   ],
   webServer: [
