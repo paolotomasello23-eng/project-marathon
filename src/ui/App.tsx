@@ -2,6 +2,7 @@ import { Component, lazy, type ReactNode, Suspense, useEffect, useMemo, useState
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import type { Actions } from '../data/actions';
 import type { Store } from '../data/store';
+import type { Sync } from '../data/sync';
 import { today } from '../lib/clock';
 import { Ic } from './bits';
 import { type AccountApi, type AppCtx, Ctx, type SheetState } from './ctx';
@@ -51,9 +52,11 @@ function Views({ store, app }: { store: Store; app: Actions }) {
   </Routes></Suspense></Boundary>;
 }
 
-export function App({ store, app, account }: { store: Store; app: Actions; account: AccountApi }) {
+export function App({ store, app, sync }: { store: Store; app: Actions; sync: Sync }) {
   const [t, setT] = useState(today()), [sheet, setSheet] = useState<SheetState>(null);
   useSyncExternalStore(store.subscribe, store.getRev);
+  const status = useSyncExternalStore(sync.subscribe, sync.getStatus);
+  const account = useMemo<AccountApi>(() => ({ status, signIn: e => sync.signIn(e), verifyCode: (e, c) => sync.verifyCode(e, c), signOut: () => sync.signOut(), syncNow: () => { void sync.syncNow(); }, resolve: k => sync.resolve(k) }), [status, sync]);
   const ready = store.loaded && app.ready();
 
   // la data di oggi cambia a mezzanotte e quando l'app torna in primo piano

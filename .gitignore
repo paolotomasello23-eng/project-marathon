@@ -10,3 +10,4 @@ playwright-report/
 coverage/
 .DS_Store
 reference/test/app.bundle.js
+dist-sync/

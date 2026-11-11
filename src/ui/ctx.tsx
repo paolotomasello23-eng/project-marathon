@@ -17,6 +17,7 @@ export type SheetState =
 export interface AccountApi {
   status: SyncStatus;
   signIn(email: string): Promise<string | null>;
+  verifyCode(email: string, code: string): Promise<string | null>;
   signOut(): Promise<void>;
   syncNow(): void;
   resolve(keep: 'local' | 'remote'): Promise<void>;

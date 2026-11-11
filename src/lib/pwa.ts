@@ -23,6 +23,7 @@ export function registerServiceWorker(): void {
   if (!('serviceWorker' in navigator) || !import.meta.env.PROD) return;
   const start = () => {
     navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(reg => {
+      if (!reg) return;
       registration = reg;
       if (reg.waiting && navigator.serviceWorker.controller) setWaiting(reg.waiting);
       reg.addEventListener('updatefound', () => {

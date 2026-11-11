@@ -69,21 +69,31 @@ function Gara() {
 }
 
 export function AccountCard() {
-  const { account } = useApp(), s = account.status, [email, setEmail] = useState(''), [sent, setSent] = useState(false), [busy, setBusy] = useState(false);
+  const { account } = useApp(), s = account.status;
+  const [email, setEmail] = useState(''), [code, setCode] = useState(''), [sent, setSent] = useState(false), [busy, setBusy] = useState(false);
   if (!s.configured) return null;
-  const submit = async (e: FormEvent) => {
+  const send = async (e: FormEvent) => {
     e.preventDefault(); if (!email.trim()) return;
     setBusy(true); const err = await account.signIn(email.trim()); setBusy(false);
     if (err) toast(err); else setSent(true);
   };
+  const verify = async (e: FormEvent) => {
+    e.preventDefault(); if (!code.trim()) return;
+    setBusy(true); const err = await account.verifyCode(email.trim(), code.trim()); setBusy(false);
+    if (err) toast(err);
+  };
   return <article className="card">
-    <div className="row between"><h2>Account</h2>{s.email ? <Chip tone={s.error ? 'warn' : 'ok'}>{s.pending ? s.pending + ' da inviare' : s.error ? 'Non aggiornato' : 'Sincronizzato'}</Chip> : <Chip>Solo qui</Chip>}</div>
+    <div className="row between"><h2>Account</h2>{s.email ? <Chip tone={s.choice || s.error ? 'warn' : 'ok'}>{s.choice ? 'Da scegliere' : s.pending ? s.pending + ' da inviare' : s.error ? 'Non aggiornato' : 'Sincronizzato'}</Chip> : <Chip>Solo qui</Chip>}</div>
     {s.email ? <>
       <p className="small muted">{s.email}</p>
       {s.choice ? <><p className="small">Questo dispositivo e l’account hanno piani diversi.</p><div className="btns"><button className="btn pri" onClick={() => account.resolve('remote')}>Usa l’account</button><button className="btn" onClick={() => account.resolve('local')}>Usa questo dispositivo</button></div></> : null}
-      <div className="btns"><button className="btn" onClick={() => account.syncNow()}>Sincronizza</button><button className="btn" onClick={() => account.signOut()}>Esci</button></div>
-    </> : sent ? <p className="small">Link inviato a {email}. Aprilo su questo dispositivo.</p>
-      : <form className="stack" style={{ gap: 12 }} onSubmit={submit}>
+      <div className="btns">{s.choice ? null : <button className="btn" onClick={() => account.syncNow()}>Sincronizza</button>}<button className="btn" onClick={() => account.signOut()}>Esci</button></div>
+    </> : sent ? <form className="stack" style={{ gap: 12 }} onSubmit={verify}>
+      <p className="small">Link inviato a {email}.</p>
+      <div className="field"><label htmlFor="ac-code">Codice</label><input id="ac-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={e => setCode(e.target.value)} /></div>
+      <div className="btns"><button className="btn pri" type="submit" disabled={busy || !code.trim()}>Accedi</button><button className="btn" type="button" onClick={() => { setSent(false); setCode(''); }}>Indietro</button></div>
+    </form>
+      : <form className="stack" style={{ gap: 12 }} onSubmit={send}>
         <div className="field"><label htmlFor="ac-email">Email</label><input type="email" id="ac-email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} /></div>
         <button className="btn pri" type="submit" disabled={busy}>Invia link</button>
       </form>}

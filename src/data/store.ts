@@ -51,7 +51,7 @@ export class Store {
    * arrivare in fondo. Per questo ogni scrittura finisce prima, in modo sincrono, in un registro (localStorage)
    * che viene svuotato quando IndexedDB conferma e riapplicato al prossimo avvio se qualcosa è rimasto.
    */
-  constructor(readonly db: MMDb = new MMDb(), private readonly journal: JournalStorage | null = defaultJournal()) { this.jp = db.name + '.j:'; }
+  constructor(readonly db: MMDb = new MMDb(), private readonly journal: JournalStorage | null = defaultJournal(), private readonly now: () => number = Date.now) { this.jp = db.name + '.j:'; }
 
   subscribe = (fn: () => void): (() => void) => { this.subs.add(fn); return () => { this.subs.delete(fn); }; };
   getRev = (): number => this.rev;
@@ -81,7 +81,7 @@ export class Store {
   async load(): Promise<void> {
     await this.replayJournal();
     const rows = await this.db.docs.toArray(), S = emptyState();
-    for (const r of rows) setPath(S, r.coll + '/' + r.id, r.data);
+    for (const r of rows) if (r.data != null) setPath(S, r.coll + '/' + r.id, r.data);
     this.S = S; this.loaded = true; this.emit();
   }
 
@@ -96,7 +96,7 @@ export class Store {
   /** Scrive un documento: subito in memoria, poi in IndexedDB e nella coda di invio (stessa transazione). */
   put(path: string, data: unknown | null): void {
     setPath(this.S, path, data);
-    const at = this.lastAt = Math.max(Date.now(), this.lastAt + 1), cur = getPath(this.S, path), json = cur == null ? null : JSON.stringify(cur);
+    const at = this.lastAt = Math.max(this.now(), this.lastAt + 1), cur = getPath(this.S, path), json = cur == null ? null : JSON.stringify(cur);
     this.dirty.set(path, { at, json });
     if (this.journal) { try { this.journal.setItem(this.jp + path, '{"at":' + at + ',"data":' + (json === null ? 'null' : json) + '}'); this.journalAt.set(path, at); } catch { /* spazio esaurito o archivio bloccato: resta la scrittura su IndexedDB */ } }
     if (!this.scheduled) { this.scheduled = true; queueMicrotask(() => this.flushDirty()); }
@@ -133,7 +133,8 @@ export class Store {
     for (const r of rows) setPath(this.S, r.coll + '/' + r.id, r.data === null || r.data === undefined ? null : r.data);
     const db = this.db;
     await db.transaction('rw', db.docs, async () => {
-      for (const r of rows) { if (r.data === null || r.data === undefined) await db.docs.delete([r.coll, r.id]); else await db.docs.put(r); }
+      // un documento eliminato resta su disco come segnaposto (data null) con il suo orario: così non viene riscaricato
+      for (const r of rows) await db.docs.put(r.data === undefined ? Object.assign({}, r, { data: null }) : r);
     });
     this.emit();
   }
