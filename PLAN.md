@@ -1,6 +1,6 @@
 # Piano di lavoro — Madrid 27
 
-Stato: vedi la tabella in fondo. Fonte dei requisiti: `PROMPT.md` (prevale) e `reference/docs/brief.md`.
+Stato: vedi la tabella delle fasi. Fonte dei requisiti: `PROMPT.md` (prevale) e `reference/docs/brief.md`.
 
 ## Cosa ho verificato nella fase 0
 
@@ -12,14 +12,14 @@ Stato: vedi la tabella in fondo. Fonte dei requisiti: `PROMPT.md` (prevale) e `r
 
 ```
 src/domain/     plan.ts, engine.ts, types.ts      logica pura portata 1:1 (nessun DOM, nessuna rete)
-src/data/       db.ts (Dexie), store.ts, actions.ts, backup.ts, sync.ts, remote.ts (Supabase)
-src/lib/        ics.ts, reminders.ts, format.ts, raceDate.ts
+src/data/       db.ts (Dexie), store.ts, actions.ts, sync.ts, remote.ts (Supabase)
+src/lib/        ics.ts, reminders.ts, pwa.ts, format.ts, clock.ts, download.ts
 src/ext/        activityImport.ts, aiCoach.ts     punti di estensione, solo interfacce
-src/ui/         cornice, componenti, una vista per schermata
+src/ui/         cornice, fogli, una vista per schermata
 src/sw.ts       service worker (precache + promemoria)
 tests/domain/   Vitest: parità con reference/src, recovery, scenari, una regola = almeno un test
-tests/data/     Vitest: azioni, backup, sincronizzazione con un remoto finto, .ics, cambio data
-tests/e2e/      Playwright: flussi principali, offline, installabilità
+tests/data/     Vitest: azioni, backup, sincronizzazione con un server finto, .ics, promemoria, cambio data
+tests/e2e/      Playwright: flussi principali, offline, installabilità, sincronizzazione, promemoria
 supabase/       schema.sql
 ```
 
@@ -27,37 +27,43 @@ Scelte tecniche dentro i paletti del prompt:
 
 - **Dominio**: `plan.js` ed `engine.js` tradotti riga per riga in TypeScript. Oltre ai test scritti a mano, un test di parità esegue il codice originale di `reference/src` e il port sugli stessi input (stagione simulata) e confronta i risultati.
 - **Stato**: uno store in memoria con la stessa forma del prototipo (`core`, `plan`, `workouts`, `checkins`, `changes`, `versions`); ogni scrittura va in IndexedDB (tabella `docs`) e nella coda (`outbox`) nella stessa transazione.
-- **Sincronizzazione**: prima si scarica (documenti con `updated_at` successivo all'ultimo allineamento), poi si svuota la coda. Conflitto sullo stesso documento: vince la scrittura più recente. La logica è scritta contro un'interfaccia (`RemoteDocs`); l'adattatore Supabase è l'unico punto che parla con la rete.
+- **Sincronizzazione**: a ogni giro si confronta l'elenco dei documenti dell'account con quello locale, si scaricano quelli cambiati, poi si svuota la coda. Conflitto sullo stesso documento: vince la scrittura più recente. La logica è scritta contro un'interfaccia (`RemoteDocs`); l'adattatore Supabase è l'unico punto che parla con la rete.
 - **Routing**: `react-router-dom`, URL veri (`/`, `/calendario`, `/registra`, `/analisi/:id`, `/progressi`, `/obiettivi`, `/coach`, `/guida`, `/profilo`, `/altro`).
 - **Caratteri**: Barlow e Barlow Condensed inclusi nell'app (pacchetti `@fontsource`), non più da Google Fonts: servono offline e non c'è un servizio esterno in più.
 
 ## Fasi
 
-| Fase | Contenuto | Fatto quando |
-|---|---|---|
-| 0 | Lettura, test di riferimento, questo piano | elenco dubbi e richieste |
-| 1 | Dominio in TypeScript con test | Vitest riproduce `recovery.js` e gli scenari di `logic.js` |
-| 2 | App locale su IndexedDB, importazione del backup | flusso completo con i dati importati |
-| 3 | PWA: manifest, icone, service worker | installabile; in modalità aereo si apre e salva |
-| 4 | Account e sincronizzazione Supabase | telefono → computer; offline → online |
-| 5 | `.ics`, promemoria locali, cambio data di gara | — |
-| 6 | Build, variabili d'ambiente, deploy, README | — |
+| Fase | Contenuto | Fatto quando | Stato |
+|---|---|---|---|
+| 0 | Lettura, test di riferimento, questo piano | elenco dubbi e richieste | fatta |
+| 1 | Dominio in TypeScript con test | Vitest riproduce `recovery.js` e gli scenari di `logic.js` | fatta |
+| 2 | App locale su IndexedDB, importazione del backup | flusso completo con i dati importati | fatta (`tests/e2e/flow.spec.ts`) |
+| 3 | PWA: manifest, icone, service worker | installabile; in modalità aereo si apre e salva | fatta su Chromium: Lighthouse 11.7.1 PWA 100, `tests/e2e/pwa.spec.ts`. Da provare su telefoni veri |
+| 4 | Account e sincronizzazione Supabase | telefono → computer; offline → online | codice e test pronti; **non verificata su Supabase vero** |
+| 5 | `.ics`, promemoria locali, cambio data di gara | — | fatta |
+| 6 | Build, variabili d'ambiente, deploy, README | — | configurazione e README pronti; **deploy da fare** |
 
-## Dubbi (con la scelta che adotto se non mi dici altro)
+## Decisioni prese lungo la strada (dimmi se una non ti va)
 
-1. **`updated_at` impostato dal server.** Con la tabella così com'è l'orario lo scrive il dispositivo: se telefono e computer hanno orologi diversi, lo scaricamento "più recente dell'ultimo allineamento" può saltare delle righe. Propongo di aggiungere allo schema un trigger che imposta `updated_at = now()` a ogni scrittura (la tabella resta identica). L'app funziona anche senza, con quel limite. *In attesa della tua risposta lo metto in `supabase/schema.sql` come blocco separato e commentato.*
-2. **Versione 1 del piano.** `core.versions` nel backup elenca la versione 1 (inizio 9 novembre), ma il formato di esportazione non contiene le sessioni delle versioni: dopo l'importazione quella versione compare nello storico ma non è ripristinabile ("Versione non disponibile su questo dispositivo", come nel prototipo). Vuoi che il backup esportato includa anche le versioni (un campo in più, facoltativo in importazione)? *Per ora: formato identico al prototipo, senza versioni.*
-3. **Promemoria senza server.** Una web app non può programmare una notifica a orario se è chiusa. Quello che si può fare davvero: notifica alla prima apertura della giornata e mentre l'app è aperta; in più, su Android con l'app installata, un controllo in background quando il sistema lo concede (orario non garantito). Su iPhone le notifiche esistono solo con l'app aggiunta alla Home (iOS 16.4+) e solo ad app aperta. *Lo realizzo così e lo scrivo nei Limiti.*
-4. **Cambio della data di gara.** Regola che adotto: le sessioni future ancora pianificate vengono sostituite da quelle dello schema riallineato all'indietro dalla nuova data; restano com'erano quelle passate, fatte, saltate e quelle aggiunte da te. Le modifiche del coach su sessioni future non ancora corse si perdono (restano nello storico e nella copia del piano). È una modifica come le altre: valore precedente, valore nuovo, copia del piano, annullabile.
-5. **Primo accesso su un dispositivo che ha già dati.** Se sia il dispositivo sia l'account hanno un piano e sono diversi, l'app chiede quale tenere invece di decidere da sola; gli allenamenti presenti da una sola parte vengono comunque conservati.
-6. **Pulsanti da 44 px.** Nel prototipo alcuni controlli sono più bassi (pulsanti piccoli 38 px, link 32 px): li porto a 44 px.
-7. **Testi non più veri.** La sezione "Limiti" del Profilo dice "Non è installabile" e "niente notifiche": la aggiorno a quello che l'app fa davvero. È l'unico punto in cui cambio testi del prototipo, più le etichette delle funzioni nuove (Account, Gara, Promemoria, Calendario esterno), tenute a una o due parole.
-8. **Lighthouse.** Dalla versione 12 Lighthouse non ha più la categoria PWA. Verifico con Lighthouse 11 e con il controllo di installabilità di Chrome (`Page.getInstallabilityErrors`).
-9. **Accesso.** Nessuna schermata di login obbligatoria: l'app funziona senza account e l'accesso sta in una scheda "Account" nel Profilo (e nella schermata iniziale, per chi apre un secondo dispositivo).
+1. **`updated_at`: nessun trigger, tabella identica alla tua.** `updated_at` è l'orario in cui il documento è stato scritto sul dispositivo (corretto sull'orologio del server quando è leggibile): serve a far vincere la scrittura più recente. Per scoprire che cosa è cambiato l'app non usa "updated_at più recente dell'ultimo allineamento" ma confronta l'elenco (coll, id, updated_at) dell'account con quello locale e scarica solo i documenti diversi. Motivo: una corsa registrata offline alle 10 e inviata alle 12 ha un orario più vecchio di quello a cui l'altro dispositivo si è già allineato, e con il cursore non verrebbe mai vista. C'è un test che lo dimostra.
+2. **Accesso su iPhone.** Il link via email si apre in Safari, che ha un archivio separato dall'app installata: lì il link non può funzionare. Per questo, dopo "Invia link", l'app accetta anche il codice a 6 cifre della stessa email. Richiede di aggiungere `{{ .Token }}` al modello dell'email in Supabase (README, punto 4).
+3. **Registro sincrono delle scritture.** IndexedDB è asincrono: i test hanno mostrato che chiudere la pagina un istante dopo un salvataggio poteva perdere il dato. Ogni scrittura passa prima da localStorage (come faceva il prototipo) e viene riapplicata al prossimo avvio se IndexedDB non l'ha confermata.
+4. **Cambio della data di gara.** Le sessioni future ancora pianificate vengono sostituite da quelle dello schema riallineato all'indietro dalla nuova data; restano quelle passate, fatte, saltate e quelle aggiunte da te. Le modifiche del coach su sessioni future non ancora corse si perdono (restano nello storico e nella copia del piano). Se anticipando la gara il carico salta in avanti, interviene la regola esistente del tetto al carico settimanale. È una modifica come le altre: annullabile.
+5. **Primo accesso con dati diversi.** Se dispositivo e account hanno piani diversi l'app chiede quale tenere; gli allenamenti presenti da una sola parte restano.
+6. **Promemoria.** Notifica alla prima apertura della giornata (non prima delle 6) e mentre l'app è aperta; ad app chiusa solo dove il sistema lo concede (Android, app installata). Se in un giorno ci sono più sessioni si ricorda prima la corsa, poi la forza.
+7. **Due difetti del prototipo corretti.** Nella pagina Registra il "+" del pulsante centrale spariva (blu su blu); nel foglio "Salta" la scelta del giorno di recupero restava visibile anche con motivo dolore o malattia.
+8. **Testi.** Cambiata solo la sezione "Limiti" del Profilo (diceva "Non è installabile" e "niente notifiche"). Etichette nuove, per le funzioni nuove: Gara, Sposta, "Conferma: riallinea il piano", Account, Email, "Invia link", Codice, Accedi, Sincronizza, Esci, "Usa l'account", "Usa questo dispositivo", Promemoria, Attiva, Disattiva, "Calendario (.ics)", "Aggiornamento pronto".
+9. **Pulsanti.** I controlli che nel prototipo erano più bassi di 44 px (pulsanti piccoli, link, schede) sono stati portati a 44.
+10. **Caratteri.** Barlow incluso nell'app invece che caricato da Google Fonts: funziona offline e non c'è un servizio esterno in più.
+
+## Dubbi aperti
+
+- **Versione 1 del piano.** Nel backup è elencata ma senza sessioni, quindi non è ripristinabile. Vuoi che il backup esportato da qui in poi contenga anche le copie del piano (un campo in più, facoltativo in importazione)?
+- **Orario dei promemoria.** Ora è "non prima delle 6". Vuoi poterlo scegliere dal Profilo?
 
 ## Cosa mi serve da te
 
-- URL e chiave pubblica (anon) del progetto Supabase, quando l'hai creato. Senza, la fase 4 resta provata solo contro un remoto finto e contro Postgres locale (schema e regole di accesso), non contro Supabase vero.
-- Hosting: Vercel, Netlify o Cloudflare Pages, e con quale account.
-- Conferma di nome breve e icona (uso "Madrid 27" e la linea blu su fondo asfalto).
-- Risposta ai dubbi 1 e 2.
+- URL e chiave pubblica (anon) del progetto Supabase, dopo aver eseguito `supabase/schema.sql`: senza, la fase 4 resta provata solo contro risposte simulate e Postgres locale.
+- Hosting: Vercel, Netlify o Cloudflare Pages, e con quale account. La configurazione per tutti e tre è già nel repository.
+- Conferma di nome breve e icona (ho usato "Madrid 27" e la linea blu su fondo asfalto: `public/icon-512.png`).
+- Una prova su iPhone e su Android veri: installazione, apertura offline, notifica.
