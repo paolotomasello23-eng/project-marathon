@@ -39,7 +39,7 @@ Scelte tecniche dentro i paletti del prompt:
 | 1 | Dominio in TypeScript con test | Vitest riproduce `recovery.js` e gli scenari di `logic.js` | fatta |
 | 2 | App locale su IndexedDB, importazione del backup | flusso completo con i dati importati | fatta (`tests/e2e/flow.spec.ts`) |
 | 3 | PWA: manifest, icone, service worker | installabile; in modalità aereo si apre e salva | fatta su Chromium: Lighthouse 11.7.1 PWA 100, `tests/e2e/pwa.spec.ts`. Da provare su telefoni veri |
-| 4 | Account e sincronizzazione Supabase | telefono → computer; offline → online | codice e test pronti; **non verificata su Supabase vero** |
+| 4 | Account e sincronizzazione Supabase | telefono → computer; offline → online | codice e test pronti; progetto vero raggiunto, **tabella da creare e accesso vero da provare** |
 | 5 | `.ics`, promemoria locali, cambio data di gara | — | fatta |
 | 6 | Build, variabili d'ambiente, deploy, README | — | configurazione e README pronti; **deploy da fare** |
 
@@ -56,14 +56,17 @@ Scelte tecniche dentro i paletti del prompt:
 9. **Pulsanti.** I controlli che nel prototipo erano più bassi di 44 px (pulsanti piccoli, link, schede) sono stati portati a 44.
 10. **Caratteri.** Barlow incluso nell'app invece che caricato da Google Fonts: funziona offline e non c'è un servizio esterno in più.
 
-## Dubbi aperti
+## Risposte ricevute (12 novembre)
 
-- **Versione 1 del piano.** Nel backup è elencata ma senza sessioni, quindi non è ripristinabile. Vuoi che il backup esportato da qui in poi contenga anche le copie del piano (un campo in più, facoltativo in importazione)?
-- **Orario dei promemoria.** Ora è "non prima delle 6". Vuoi poterlo scegliere dal Profilo?
+- Supabase: progetto indicato; i valori stanno in `.env` (non nel repository). Dal controllo del 12 novembre: il progetto risponde, l'accesso via email è attivo, **la tabella `docs` non esiste ancora** (va eseguito `supabase/schema.sql`).
+- Hosting: nessun account esistente → consigliato Vercel con accesso GitHub (passi nel README).
+- Nome e icona: confermati.
+- Versione 1 del piano: non serve; il piano ufficiale parte il 16 novembre. Le copie senza contenuto non offrono più il ripristino.
+- Ora dei promemoria: si sceglie dal Profilo ("Non prima delle"). Con i promemoria attivi il calendario esportato porta un avviso alla stessa ora: su iPhone è il modo per avere un promemoria a orario ad app chiusa.
+- Serve solo iPhone: i file si consegnano con il foglio di condivisione di iOS; l'accesso nell'app installata usa il codice dell'email.
 
-## Cosa mi serve da te
+## Cosa manca per chiudere
 
-- URL e chiave pubblica (anon) del progetto Supabase, dopo aver eseguito `supabase/schema.sql`: senza, la fase 4 resta provata solo contro risposte simulate e Postgres locale.
-- Hosting: Vercel, Netlify o Cloudflare Pages, e con quale account. La configurazione per tutti e tre è già nel repository.
-- Conferma di nome breve e icona (ho usato "Madrid 27" e la linea blu su fondo asfalto: `public/icon-512.png`).
-- Una prova su iPhone e su Android veri: installazione, apertura offline, notifica.
+1. Eseguire `supabase/schema.sql` nel progetto (SQL Editor) e aggiungere `{{ .Token }}` ai modelli email *Confirm signup* e *Magic Link*.
+2. Pubblicare (Vercel) con le due variabili d'ambiente e riportare l'indirizzo in Supabase (*Site URL* e *Redirect URLs*).
+3. Prova vera su iPhone: installazione, accesso con codice, allenamento che compare sul computer, uno registrato in modalità aereo che si sincronizza al ritorno della rete, notifica.

@@ -4,7 +4,7 @@ import * as E from '../../domain/engine';
 import { cap1, num } from '../../lib/format';
 import { saveFile } from '../../lib/download';
 import { planIcs } from '../../lib/ics';
-import { disableReminders, enableReminders, type ReminderState, reminderState } from '../../lib/reminders';
+import { disableReminders, enableReminders, FROM_HOUR, fromHour, type ReminderState, reminderState, setReminderHour } from '../../lib/reminders';
 import { Chip, Head } from '../bits';
 import { toast, useApp } from '../ctx';
 import { ImportBox } from '../ImportBox';
@@ -102,45 +102,50 @@ export function AccountCard() {
   </article>;
 }
 
-function Dati() {
+interface Rem { st: ReminderState; hour: number }
+
+function Dati({ rem }: { rem: Rem | null }) {
   const { app, t, account } = useApp();
+  const save = (name: string, text: string, type: string) => { void saveFile(name, text, type).then(ok => { if (ok) toast('File salvato.'); }); };
   return <article className="card">
     <div className="row between"><h2>Dati</h2>{account.status.email ? <Chip tone="ok">Sincronizzati</Chip> : <Chip>Solo qui</Chip>}</div>
     <div className="btns">
-      <button className="btn" onClick={() => { saveFile('maratona-madrid-backup-' + t + '.json', JSON.stringify(app.exportObject(), null, 1), 'application/json'); toast('File salvato.'); }}>Backup</button>
-      <button className="btn" onClick={() => { saveFile('maratona-madrid-allenamenti-' + t + '.csv', app.csv(), 'text/csv;charset=utf-8'); toast('File salvato.'); }}>CSV</button>
-      <button className="btn" onClick={() => { saveFile('madrid27-piano.ics', planIcs(app.S.plan!.sessions, s => app.describe(s), new Date(), app.S.core!.race.name || 'Madrid 27'), 'text/calendar;charset=utf-8'); toast('File salvato.'); }}>Calendario (.ics)</button>
+      <button className="btn" onClick={() => save('maratona-madrid-backup-' + t + '.json', JSON.stringify(app.exportObject(), null, 1), 'application/json')}>Backup</button>
+      <button className="btn" onClick={() => save('maratona-madrid-allenamenti-' + t + '.csv', app.csv(), 'text/csv;charset=utf-8')}>CSV</button>
+      <button className="btn" onClick={() => save('madrid27-piano.ics', planIcs(app.S.plan!.sessions, s => app.describe(s), new Date(), app.S.core!.race.name || 'Madrid 27', rem && rem.st === 'on' ? rem.hour : null), 'text/calendar;charset=utf-8')}>Calendario (.ics)</button>
     </div>
     <ImportBox label="Ripristina backup" />
   </article>;
 }
 
-function Promemoria() {
-  const { app, t } = useApp(), [st, setSt] = useState<ReminderState | null>(null);
-  useEffect(() => { let live = true; void reminderState(app.store.db).then(x => { if (live) setSt(x); }); return () => { live = false; }; }, [app]);
-  if (!st) return null;
-  const label = { on: 'Attivi', off: 'Spenti', blocked: 'Bloccati', unsupported: 'Non disponibili' }[st];
+function Promemoria({ rem, setRem }: { rem: Rem | null; setRem: (r: Rem) => void }) {
+  const { app, t } = useApp();
+  if (!rem) return null;
+  const st = rem.st, label = { on: 'Attivi', off: 'Spenti', blocked: 'Bloccati', unsupported: 'Non disponibili' }[st];
   return <article className="card">
     <div className="row between"><h2>Promemoria</h2><Chip tone={st === 'on' ? 'ok' : st === 'blocked' ? 'warn' : ''}>{label}</Chip></div>
-    {st === 'on' ? <button className="btn" onClick={async () => setSt(await disableReminders(app.store.db))}>Disattiva</button>
-      : st === 'off' ? <button className="btn" onClick={async () => { const r = await enableReminders(app, t); setSt(r); if (r === 'blocked') toast('Notifiche bloccate: riattivale dalle impostazioni del dispositivo.'); }}>Attiva</button> : null}
+    <div className="field"><label htmlFor="rm-hour">Non prima delle</label><select id="rm-hour" value={rem.hour} onChange={e => { const hour = +e.target.value; setRem({ st, hour }); void setReminderHour(app, t, hour); }}>{Array.from({ length: 24 }, (_, h) => <option key={h} value={h}>{h}:00</option>)}</select></div>
+    {st === 'on' ? <button className="btn" onClick={async () => setRem({ st: await disableReminders(app.store.db), hour: rem.hour })}>Disattiva</button>
+      : st === 'off' ? <button className="btn" onClick={async () => { const r = await enableReminders(app, t); setRem({ st: r, hour: rem.hour }); if (r === 'blocked') toast('Notifiche bloccate: riattivale dalle impostazioni del dispositivo.'); }}>Attiva</button> : null}
   </article>;
 }
 
 export default function Profilo() {
+  const { app } = useApp(), [rem, setRem] = useState<Rem | null>(null);
+  useEffect(() => { let live = true; void Promise.all([reminderState(app.store.db), fromHour(app.store.db)]).then(([st, hour]) => { if (live) setRem({ st, hour: isFinite(hour) ? hour : FROM_HOUR }); }); return () => { live = false; }; }, [app]);
   return <>
     <Head title="Profilo" />
     <div className="grid two">
       <Atleta />
       <Giorni />
       <Gara />
-      <Dati />
+      <Dati rem={rem} />
       <AccountCard />
-      <Promemoria />
+      <Promemoria rem={rem} setRem={setRem} />
       <details className="grp"><summary>Limiti</summary><div className="body prose"><ul>
         <li>Analisi e proposte seguono regole fisse.</li>
         <li>Carico, ritmo in piano e previsione sono stime.</li>
-        <li>Promemoria: alla prima apertura della giornata; ad app chiusa solo dove il dispositivo lo consente.</li>
+        <li>Promemoria: su iPhone la notifica arriva aprendo l’app; per un avviso a orario usa il calendario esportato.</li>
         <li>Niente import da orologio o Strava.</li>
         <li>Senza account i dati restano solo su questo dispositivo.</li>
       </ul></div></details>

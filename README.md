@@ -11,10 +11,10 @@ La logica di allenamento è quella del prototipo in `reference/`, portata in Typ
 | 0 Lettura e piano | fatta |
 | 1 Dominio in TypeScript | fatta |
 | 2 App locale su IndexedDB | fatta |
-| 3 PWA | fatta (verificata su Chromium; da provare su iPhone e Android veri) |
-| 4 Account e sincronizzazione | codice e test pronti; **manca la prova contro un progetto Supabase vero** |
+| 3 PWA | fatta (verificata su Chromium; da provare su un iPhone vero) |
+| 4 Account e sincronizzazione | codice e test pronti; il progetto Supabase risponde, ma **va ancora eseguito `supabase/schema.sql`** e fatto un accesso vero |
 | 5 `.ics`, promemoria, cambio data di gara | fatta |
-| 6 Pubblicazione | configurazione pronta; **manca il deploy** (serve sapere quale hosting e quale account) |
+| 6 Pubblicazione | configurazione pronta; **manca il deploy** (vedi "Pubblicazione": consigliato Vercel) |
 
 ## Avvio da zero
 
@@ -60,12 +60,18 @@ npm run test:schema
 
 Prova `supabase/schema.sql` e le regole di accesso su un Postgres locale usa-e-getta (servono i binari di PostgreSQL).
 
+```bash
+npm run test:supabase
+```
+
+Controlli sul progetto Supabase vero indicato in `.env`, con la sola chiave pubblica e senza scrivere nulla: la tabella esiste, le richieste dell'app sono accettate, chi non ha fatto l'accesso non vede e non scrive, l'accesso via email è attivo.
+
 ## Account e sincronizzazione (Supabase)
 
 1. Crea un progetto su Supabase.
 2. **SQL Editor** → incolla ed esegui `supabase/schema.sql`. Crea la tabella `docs` con le regole di accesso: ognuno vede e scrive solo le proprie righe.
 3. **Authentication → URL Configuration**: in *Site URL* metti l'indirizzo pubblico dell'app; in *Redirect URLs* aggiungi lo stesso indirizzo seguito da `/profilo` (e `http://localhost:5173/profilo` per lo sviluppo).
-4. **Authentication → Emails → Magic Link**: aggiungi al testo dell'email il codice a 6 cifre, per esempio `Codice: {{ .Token }}`. Serve su iPhone: il link si apre in Safari, non nell'app installata, quindi lì si entra scrivendo il codice.
+4. **Authentication → Emails**: nei modelli **Confirm signup** (usato al primo accesso) e **Magic Link** (usato dopo) aggiungi al testo il codice, per esempio `Codice: {{ .Token }}`. Su iPhone è indispensabile: il link si apre in Safari, non nell'app installata, quindi lì si entra scrivendo il codice.
 5. **Project Settings → API**: copia *Project URL* e la chiave *anon public*.
 6. Copia `.env.example` in `.env` e riempi i due valori:
 
@@ -73,7 +79,9 @@ Prova `supabase/schema.sql` e le regole di accesso su un Postgres locale usa-e-g
 cp .env.example .env
 ```
 
-`.env` non va nel repository. I due valori sono pubblici per natura (finiscono nel codice inviato al browser): a proteggere i dati sono le regole di accesso della tabella, non la segretezza della chiave. La chiave `service_role` invece non va mai usata nell'app.
+In `VITE_SUPABASE_URL` va l'indirizzo base del progetto (`https://….supabase.co`), senza `/rest/v1/`. `.env` non va nel repository. I due valori sono pubblici per natura (finiscono nel codice inviato al browser): a proteggere i dati sono le regole di accesso della tabella, non la segretezza della chiave. La chiave `service_role` invece non va mai usata nell'app.
+
+Il servizio email incluso in Supabase invia poche email all'ora e solo agli indirizzi dei membri del progetto: per un uso personale basta.
 
 Come funziona:
 
@@ -93,7 +101,18 @@ npm run build
 
 Su qualunque hosting servono tre cose: le due variabili `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` impostate **prima** della build (vengono lette in quel momento), il comando di build `npm run build`, la cartella di uscita `dist`.
 
-- **Vercel**: importa il repository; `vercel.json` contiene già build, cartella, reindirizzamento di tutti gli indirizzi su `index.html` e intestazioni di cache. Variabili in *Settings → Environment Variables*.
+**Vercel (consigliato se non hai già un account altrove)** — si entra con GitHub, è gratuito per uso personale:
+
+1. vai su vercel.com e scegli *Continue with GitHub*;
+2. *Add New… → Project*, poi *Import* accanto a `project-marathon`;
+3. apri *Environment Variables* e aggiungi `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` con i valori del tuo `.env`;
+4. *Deploy*. `vercel.json` contiene già build, cartella, reindirizzamento di tutti gli indirizzi su `index.html` e intestazioni di cache;
+5. copia l'indirizzo che Vercel ti assegna (tipo `https://project-marathon-….vercel.app`).
+
+Da lì in poi ogni invio sul ramo principale del repository ripubblica l'app da solo.
+
+Alternative equivalenti:
+
 - **Netlify**: importa il repository; `netlify.toml` contiene build e cartella, `public/_redirects` e `public/_headers` il resto. Variabili in *Site configuration → Environment variables*.
 - **Cloudflare Pages**: collega il repository, comando `npm run build`, cartella `dist`; usa gli stessi `_redirects` e `_headers`. Variabili in *Settings → Environment variables*.
 
@@ -101,12 +120,17 @@ Dopo il primo deploy: aggiorna *Site URL* e *Redirect URLs* in Supabase con l'in
 
 Serve HTTPS (tutti e tre lo danno): senza, il service worker non si installa.
 
-## Installazione sul telefono
+## Su iPhone
 
-- **iPhone (Safari)**: Condividi → *Aggiungi alla schermata Home*.
-- **Android (Chrome)**: menu → *Installa app* (o il banner che compare da solo).
+1. Apri l'indirizzo dell'app in **Safari** → Condividi → *Aggiungi alla schermata Home*. Da quel momento usala dall'icona: è lì che vivono i dati e le notifiche.
+2. **Accesso**: Profilo → Account → scrivi l'email → *Invia link*. Nell'email c'è anche un codice: scrivilo nel campo *Codice* e tocca *Accedi*. (Il link, su iPhone, aprirebbe Safari e non l'app.)
+3. **Promemoria**: Profilo → Promemoria → *Attiva* (solo dall'app installata, iOS 16.4 o successivo). La notifica dell'allenamento arriva quando apri l'app, non prima dell'ora scelta in *Non prima delle*.
+4. **Avviso a orario anche ad app chiusa**: con i promemoria attivi, Profilo → Dati → *Calendario (.ics)* esporta il piano con un avviso all'ora scelta. Aggiungilo al Calendario di iPhone: a far suonare l'avviso è il Calendario, quindi funziona sempre. Dopo modifiche importanti al piano conviene esportarlo di nuovo.
+5. **File** (backup, CSV, calendario): su iPhone si apre il foglio di condivisione; scegli *Salva su File* o l'app con cui aprirli.
 
 Quando esce una versione nuova, in *Oggi* compare "Aggiornamento pronto": un tocco e l'app si ricarica aggiornata.
+
+Su computer basta aprire l'indirizzo nel browser e fare l'accesso: qui il link dell'email funziona direttamente.
 
 ## Struttura
 
@@ -138,8 +162,8 @@ Finché nessuno è registrato l'interfaccia non mostra nulla.
 
 ## Limiti da conoscere
 
-- **Promemoria**: senza un server di push una web app non può programmare una notifica a orario. La notifica dell'allenamento arriva alla prima apertura della giornata e mentre l'app è aperta. Ad app chiusa arriva solo dove il sistema concede il controllo periodico in background (Android con l'app installata), all'orario che decide il sistema. Su iPhone le notifiche esistono solo con l'app aggiunta alla Home e arrivano solo aprendola.
-- **Versione 1 del piano**: il backup del prototipo elenca la versione 1 (inizio 9 novembre) ma non ne contiene le sessioni: compare nello storico, non è ripristinabile. Le versioni create da qui in poi lo sono.
+- **Promemoria**: senza un server di push una web app non può programmare una notifica a orario. Su iPhone la notifica dell'allenamento arriva aprendo l'app (dall'ora scelta in poi) ed esiste solo con l'app aggiunta alla Home. Per un avviso a orario ad app chiusa c'è il calendario esportato con gli avvisi. (Su Android con l'app installata il sistema può svegliarla in background, all'orario che decide lui.)
+- **Versione 1 del piano**: il piano ufficiale è quello che parte il 16 novembre. Il backup del prototipo elenca anche la versione 1 (inizio 9 novembre) ma senza le sessioni: resta nello storico come nota, senza pulsante di ripristino.
 - **Conflitti**: la regola è per documento. Se due dispositivi, uno dei quali senza rete, cambiano entrambi il piano, resta il piano scritto per ultimo; gli allenamenti, che sono documenti separati, si uniscono sempre e la sessione collegata torna "fatta".
 - **Analisi e proposte** seguono regole fisse; carico, ritmo in piano e previsione sono stime e come tali sono indicate.
 - L'app riduce il carico in caso di dolore o malattia e invita a farsi valutare: non fa diagnosi.

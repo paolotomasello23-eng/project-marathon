@@ -33,14 +33,21 @@ export function sessionNotes(d: Description): string {
   return rows.join('\n');
 }
 
-/** Calendario con le sessioni non di riposo e non saltate. `now` è l'istante dell'esportazione. */
-export function planIcs(sessions: Session[], describe: (s: Session) => Description, now: Date, name = 'Madrid 27'): string {
+/**
+ * Calendario con le sessioni non di riposo e non saltate. `now` è l'istante dell'esportazione.
+ * alarmHour: se indicata, ogni evento porta un avviso a quell'ora del giorno (0–23). È il modo per avere un
+ * promemoria a orario su iPhone anche ad app chiusa: lo fa suonare l'app Calendario, non questa.
+ */
+export function planIcs(sessions: Session[], describe: (s: Session) => Description, now: Date, name = 'Madrid 27', alarmHour: number | null = null): string {
   const L: string[] = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Madrid 27//Piano di allenamento//IT', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:' + icsText(name)];
   sessions.filter(s => s.k !== 'rest' && s.st !== 'skipped').forEach(s => {
     const d = describe(s), notes = sessionNotes(d);
     L.push('BEGIN:VEVENT', 'UID:' + s.id + '@madrid27', 'DTSTAMP:' + stamp(now), 'DTSTART;VALUE=DATE:' + day(s.d), 'DTEND;VALUE=DATE:' + day(P.addDays(s.d, 1)), 'SUMMARY:' + icsText(sessionSummary(s)));
     if (notes) L.push('DESCRIPTION:' + icsText(notes));
-    L.push('CATEGORIES:' + icsText(P.KIND_LABEL[s.k] || 'Allenamento'), 'TRANSP:TRANSPARENT', 'END:VEVENT');
+    L.push('CATEGORIES:' + icsText(P.KIND_LABEL[s.k] || 'Allenamento'), 'TRANSP:TRANSPARENT');
+    // l'evento dura tutto il giorno e inizia a mezzanotte: l'avviso scatta alarmHour ore dopo
+    if (alarmHour != null) L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsText(sessionSummary(s)), 'TRIGGER:' + (alarmHour > 0 ? 'PT' + Math.round(alarmHour) + 'H' : 'PT0S'), 'END:VALARM');
+    L.push('END:VEVENT');
   });
   L.push('END:VCALENDAR');
   return L.map(icsFold).join('\r\n') + '\r\n';

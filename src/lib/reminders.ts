@@ -60,6 +60,11 @@ export async function enableReminders(app: Actions, t: Iso): Promise<ReminderSta
   await checkReminder(app, t, true);
   return 'on';
 }
+/** Cambia l'ora prima della quale non arrivano promemoria (0–23). */
+export async function setReminderHour(app: Actions, t: Iso, hour: number): Promise<void> {
+  await app.store.db.setMeta('rem:hour', Math.max(0, Math.min(23, Math.round(hour))));
+  await checkReminder(app, t);
+}
 export async function disableReminders(db: MMDb): Promise<ReminderState> {
   await db.setMeta('rem:on', false); await periodic(false);
   return 'off';

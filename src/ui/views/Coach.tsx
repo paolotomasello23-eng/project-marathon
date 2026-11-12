@@ -74,7 +74,7 @@ export default function Coach() {
     </article>
     {vs.length ? <details className="grp" style={{ marginTop: 12 }}><summary>Versioni del piano ({vs.length})</summary><div className="body"><ul className="tl">{vs.map(v => <li key={v.id}>
       <div className="row between"><span className="small"><b>v{v.n}</b> · <Stamp at={v.at} /></span>
-        <button className={'btn sm' + (sure === v.id ? ' danger' : '')} onClick={() => { if (sure !== v.id) { setSure(v.id); return; } setSure(null); toast(app.restoreVersion(v.id) ? 'Versione ' + v.n + ' ripristinata.' : 'Versione non disponibile su questo dispositivo.'); }}>{sure === v.id ? 'Conferma ripristino' : 'Ripristina'}</button></div>
+        {S.versions[v.id] ? <button className={'btn sm' + (sure === v.id ? ' danger' : '')} onClick={() => { if (sure !== v.id) { setSure(v.id); return; } setSure(null); toast(app.restoreVersion(v.id) ? 'Versione ' + v.n + ' ripristinata.' : 'Versione non disponibile su questo dispositivo.'); }}>{sure === v.id ? 'Conferma ripristino' : 'Ripristina'}</button> : null}</div>
       <span className="tiny">{v.label || ''}</span>
     </li>)}</ul></div></details> : null}
   </>;

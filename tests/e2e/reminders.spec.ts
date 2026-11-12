@@ -1,6 +1,36 @@
 /* Promemoria: richiede un browser che mostri davvero le notifiche (progetto "notifiche" in playwright.config.ts). */
 import { expect, test } from '@playwright/test';
+import fs from 'node:fs';
 import { start } from './helpers';
+
+test('ora dei promemoria: prima di quell’ora nessuna notifica; il calendario esportato porta l’avviso alla stessa ora', async ({ page, context }) => {
+  await context.grantPermissions(['notifications']);
+  await start(page, '2026-11-17', '08:00:00');
+  await page.evaluate(async () => { await navigator.serviceWorker.ready; });
+  await page.goto('/profilo');
+  const card = page.locator('.card').filter({ has: page.getByRole('heading', { name: 'Promemoria' }) });
+  await expect(card.getByLabel('Non prima delle')).toHaveValue('6');
+  await card.getByLabel('Non prima delle').selectOption('9'); // sono le 8: troppo presto
+  const meta = (k: string) => page.evaluate(key => new Promise(res => { const r = indexedDB.open('madrid27'); r.onsuccess = () => { const g = r.result.transaction('meta').objectStore('meta').get(key); g.onsuccess = () => { r.result.close(); res(g.result ? g.result.v : null); }; }; }), k);
+  await expect.poll(() => meta('rem:hour')).toBe(9);
+  await page.reload();
+  await expect(card.getByLabel('Non prima delle')).toHaveValue('9');
+  // senza promemoria attivi il calendario non contiene avvisi
+  const [plain] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Calendario (.ics)' }).click()]);
+  expect(fs.readFileSync(await plain.path(), 'utf8')).not.toContain('VALARM');
+  await card.getByRole('button', { name: 'Attiva' }).click(); // attivandoli a mano la notifica di oggi arriva subito
+  await expect(card.locator('.chip')).toHaveText('Attivi');
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Calendario (.ics)' }).click()]);
+  const ics = fs.readFileSync(await dl.path(), 'utf8');
+  expect((ics.match(/TRIGGER:PT9H/g) || []).length).toBe(135);
+  // il giorno dopo, aprendo l'app alle 8: ancora niente; alle 9 arriva
+  await page.evaluate(async () => { (await (await navigator.serviceWorker.ready).getNotifications()).forEach(n => n.close()); });
+  const shown = () => page.evaluate(async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => n.title));
+  await page.clock.setSystemTime(new Date('2026-11-18T08:10:00+01:00')); await page.reload(); await page.waitForTimeout(2500);
+  expect(await shown()).toEqual([]);
+  await page.clock.setSystemTime(new Date('2026-11-18T09:05:00+01:00')); await page.reload();
+  await expect.poll(shown).toEqual(['Oggi: Forza generale']);
+});
 
 test('promemoria: attivandoli arriva la notifica dell’allenamento di oggi, una sola volta', async ({ page, context }) => {
   await context.grantPermissions(['notifications']);

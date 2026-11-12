@@ -41,6 +41,15 @@ describe('calendario esterno (.ics)', () => {
     expect(lines[r + 2]).toBe('DTSTART;VALUE=DATE:20270425'); expect(lines[r + 4]).toBe('SUMMARY:Maratona di Madrid 42\\,2 km');
   });
 
+  it('con i promemoria attivi ogni evento porta un avviso all’ora scelta; altrimenti nessun avviso', async () => {
+    const { app, store } = await fresh(), ss = store.S.plan!.sessions, d = (x: (typeof ss)[number]) => app.describe(x);
+    expect(planIcs(ss, d, new Date())).not.toContain('VALARM');
+    const at7 = planIcs(ss, d, new Date(), 'Madrid 27', 7).replace(/\r\n /g, '');
+    expect((at7.match(/BEGIN:VALARM/g) || []).length).toBe(135);
+    expect(at7).toContain('TRANSP:TRANSPARENT\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:Corsa facile + allunghi 6 km\r\nTRIGGER:PT7H\r\nEND:VALARM\r\nEND:VEVENT');
+    expect(planIcs(ss, d, new Date(), 'Madrid 27', 0)).toContain('TRIGGER:PT0S');
+  });
+
   it('le sessioni saltate non vengono esportate; quelle spostate escono nel giorno nuovo', async () => {
     at('2026-11-17');
     const { app, store } = await fresh();
