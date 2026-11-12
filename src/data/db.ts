@@ -24,4 +24,8 @@ export class MMDb extends Dexie {
   async setMeta(k: string, v: unknown): Promise<void> { await this.meta.put({ k, v }); }
 }
 
+let device: MMDb | null = null;
+/** Archivio delle impostazioni del dispositivo (promemoria): sempre lo stesso, qualunque account sia in uso. */
+export function deviceDb(): MMDb { return device || (device = new MMDb(DB_NAME)); }
+
 export function splitPath(path: string): [Coll, string] { const i = path.indexOf('/'); return [path.slice(0, i) as Coll, path.slice(i + 1)]; }

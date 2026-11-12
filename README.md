@@ -12,9 +12,9 @@ La logica di allenamento è quella del prototipo in `reference/`, portata in Typ
 | 1 Dominio in TypeScript | fatta |
 | 2 App locale su IndexedDB | fatta |
 | 3 PWA | fatta (verificata su Chromium; da provare su un iPhone vero) |
-| 4 Account e sincronizzazione | tabella creata e regole di accesso verificate sul progetto vero (`npm run test:supabase`: 5 su 5); **manca un accesso vero** da telefono e computer |
+| 4 Account e sincronizzazione | account con email e password (più link via email, facoltativo); tabella e regole di accesso verificate sul progetto vero (`npm run test:supabase`: 5 su 5); **manca un accesso vero** da telefono e computer |
 | 5 `.ics`, promemoria, cambio data di gara | fatta |
-| 6 Pubblicazione | pubblicata su https://project-marathon-blush.vercel.app (installabile, funziona offline); **la build va rifatta con le due variabili di Supabase**, altrimenti la scheda Account non compare |
+| 6 Pubblicazione | pubblicata su https://project-marathon-blush.vercel.app: installabile, funziona offline, configurata per la sincronizzazione (`npm run test:deploy`: 3 su 3) |
 
 ## Avvio da zero
 
@@ -74,20 +74,35 @@ Controlli sull'app pubblicata, in un browser pulito e senza fare l'accesso: indi
 
 ## Account e sincronizzazione (Supabase)
 
+Ognuno crea il proprio account con **email e password** e ritrova i propri dati su qualunque dispositivo. I dati di un account li vede solo quell'account (regole di accesso sulla tabella). In alternativa si può entrare con un link via email, che però richiede un servizio email configurato (vedi sotto).
+
+Configurazione del progetto, una volta sola:
+
 1. Crea un progetto su Supabase.
 2. **SQL Editor** → incolla ed esegui `supabase/schema.sql`. Crea la tabella `docs` con le regole di accesso: ognuno vede e scrive solo le proprie righe.
-3. **Authentication → URL Configuration**: in *Site URL* metti l'indirizzo pubblico dell'app; in *Redirect URLs* aggiungi lo stesso indirizzo seguito da `/profilo` (e `http://localhost:5173/profilo` per lo sviluppo).
-4. **Authentication → Emails**: nei modelli **Confirm signup** (usato al primo accesso) e **Magic Link** (usato dopo) aggiungi al testo il codice, per esempio `Codice: {{ .Token }}`. Su iPhone è indispensabile: il link si apre in Safari, non nell'app installata, quindi lì si entra scrivendo il codice.
-5. **Project Settings → API**: copia *Project URL* e la chiave *anon public*.
-6. Copia `.env.example` in `.env` e riempi i due valori:
+3. **Authentication → Sign In / Providers → Email** → disattiva **Confirm email**. Così chi crea un account entra subito e non parte nessuna email: non serve alcun servizio di posta. (Con la conferma attiva, Supabase prova a scrivere a ogni nuovo iscritto, e con il servizio email incluso può scrivere solo ai membri del progetto.)
+4. **Project Settings → API**: copia *Project URL* e la chiave pubblica (*anon* o *publishable*).
+5. Copia `.env.example` in `.env` e riempi i due valori:
 
 ```bash
 cp .env.example .env
 ```
 
-In `VITE_SUPABASE_URL` va l'indirizzo base del progetto (`https://….supabase.co`); se lo copi con `/rest/v1/` in fondo viene sistemato da solo. Sull'hosting vanno bene anche i nomi senza prefisso (`SUPABASE_URL`, `SUPABASE_ANON_KEY`). `.env` non va nel repository. I due valori sono pubblici per natura (finiscono nel codice inviato al browser): a proteggere i dati sono le regole di accesso della tabella, non la segretezza della chiave. La chiave `service_role` invece non va mai usata nell'app.
+In `VITE_SUPABASE_URL` va l'indirizzo base del progetto (`https://….supabase.co`); se lo copi con `/rest/v1/` in fondo viene sistemato da solo. Sull'hosting vanno bene anche i nomi senza prefisso (`SUPABASE_URL`, `SUPABASE_ANON_KEY`). `.env` non va nel repository. I due valori sono pubblici per natura (finiscono nel codice inviato al browser): a proteggere i dati sono le regole di accesso della tabella, non la segretezza della chiave. La chiave `service_role` invece non va mai usata nell'app: se finisce per errore al posto di quella pubblica, la build si ferma.
 
-Il servizio email incluso in Supabase invia poche email all'ora e solo agli indirizzi dei membri del progetto: per un uso personale basta.
+Da sapere:
+
+- **Password dimenticata.** Senza un servizio email non c'è recupero via email. I dati però restano sul dispositivo: Profilo → Dati → *Backup*, poi si crea un account nuovo e si ripristina il backup. Chi è collegato può cambiare password da Profilo → Account → *Password*.
+- **Più account sullo stesso dispositivo.** Ogni account ha il suo archivio locale: uscendo ed entrando con un altro account l'app passa all'archivio di quello, e i dati non si mescolano.
+- **Chiudere le iscrizioni.** Quando tu e i tuoi amici avete l'account, in Authentication → Sign In / Providers puoi disattivare *Allow new users to sign up*.
+
+### Facoltativo: email (link di accesso, conferma dell'indirizzo)
+
+Serve solo se vuoi usare "Accedi con un link via email" o la conferma dell'indirizzo. Supabase permette di modificare i modelli delle email solo con un servizio di posta proprio (**Authentication → Emails → SMTP Settings**), e quello incluso scrive solo ai membri del progetto. Con un servizio SMTP (per esempio Brevo, Resend o un account Gmail dedicato con una "password per le app"):
+
+1. inserisci in *SMTP Settings* server, porta, utente, password e indirizzo del mittente forniti dal servizio;
+2. nei modelli **Confirm signup** e **Magic Link** aggiungi `Codice: {{ .Token }}`: su iPhone il link si apre in Safari, non nell'app installata, quindi lì si entra scrivendo il codice;
+3. in **Authentication → URL Configuration** metti l'indirizzo pubblico dell'app in *Site URL* e lo stesso seguito da `/profilo` in *Redirect URLs*.
 
 Come funziona:
 
@@ -95,7 +110,8 @@ Come funziona:
 - ogni documento porta l'orario in cui è stato scritto: se telefono e computer modificano lo stesso documento vince la scrittura più recente;
 - a ogni giro l'app confronta l'elenco dei documenti dell'account con quello locale e scarica solo quelli cambiati;
 - eliminare un allenamento lo marca come eliminato (resta ripristinabile); le copie del piano oltre le ultime 40 diventano righe con `data` nullo;
-- al primo accesso su un dispositivo che ha già un piano diverso da quello dell'account, l'app chiede quale tenere; gli allenamenti presenti da una sola parte restano comunque.
+- al primo accesso su un dispositivo che ha già un piano diverso da quello dell'account, l'app chiede quale tenere; gli allenamenti presenti da una sola parte restano comunque;
+- se sul dispositivo ci sono i dati di un altro account, l'app non li unisce né li invia: apre un archivio locale separato per l'account nuovo.
 
 ## Pubblicazione
 
@@ -122,21 +138,19 @@ Alternative equivalenti:
 - **Netlify**: importa il repository; `netlify.toml` contiene build e cartella, `public/_redirects` e `public/_headers` il resto. Variabili in *Site configuration → Environment variables*.
 - **Cloudflare Pages**: collega il repository, comando `npm run build`, cartella `dist`; usa gli stessi `_redirects` e `_headers`. Variabili in *Settings → Environment variables*.
 
-Dopo il primo deploy: aggiorna *Site URL* e *Redirect URLs* in Supabase con l'indirizzo definitivo.
-
 Serve HTTPS (tutti e tre lo danno): senza, il service worker non si installa.
 
 ## Su iPhone
 
 1. Apri l'indirizzo dell'app in **Safari** → Condividi → *Aggiungi alla schermata Home*. Da quel momento usala dall'icona: è lì che vivono i dati e le notifiche.
-2. **Accesso**: Profilo → Account → scrivi l'email → *Invia link*. Nell'email c'è anche un codice: scrivilo nel campo *Codice* e tocca *Accedi*. (Il link, su iPhone, aprirebbe Safari e non l'app.)
+2. **Account**: Profilo → Account → email e password → *Crea account* la prima volta, *Accedi* le successive e sugli altri dispositivi. Chi apre l'app su un dispositivo nuovo trova la stessa scheda nella schermata iniziale.
 3. **Promemoria**: Profilo → Promemoria → *Attiva* (solo dall'app installata, iOS 16.4 o successivo). La notifica dell'allenamento arriva quando apri l'app, non prima dell'ora scelta in *Non prima delle*.
 4. **Avviso a orario anche ad app chiusa**: con i promemoria attivi, Profilo → Dati → *Calendario (.ics)* esporta il piano con un avviso all'ora scelta. Aggiungilo al Calendario di iPhone: a far suonare l'avviso è il Calendario, quindi funziona sempre. Dopo modifiche importanti al piano conviene esportarlo di nuovo.
 5. **File** (backup, CSV, calendario): su iPhone si apre il foglio di condivisione; scegli *Salva su File* o l'app con cui aprirli.
 
 Quando esce una versione nuova, in *Oggi* compare "Aggiornamento pronto": un tocco e l'app si ricarica aggiornata.
 
-Su computer basta aprire l'indirizzo nel browser e fare l'accesso: qui il link dell'email funziona direttamente.
+Su computer basta aprire l'indirizzo nel browser ed entrare con la stessa email e password.
 
 ## Struttura
 

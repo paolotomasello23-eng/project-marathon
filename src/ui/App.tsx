@@ -57,7 +57,7 @@ export function App({ store, app, sync }: { store: Store; app: Actions; sync: Sy
   const [t, setT] = useState(today()), [sheet, setSheet] = useState<SheetState>(null);
   useSyncExternalStore(store.subscribe, store.getRev);
   const status = useSyncExternalStore(sync.subscribe, sync.getStatus);
-  const account = useMemo<AccountApi>(() => ({ status, signIn: e => sync.signIn(e), verifyCode: (e, c) => sync.verifyCode(e, c), signOut: () => sync.signOut(), syncNow: () => { void sync.syncNow(); }, resolve: k => sync.resolve(k) }), [status, sync]);
+  const account = useMemo<AccountApi>(() => ({ status, signIn: e => sync.signIn(e), verifyCode: (e, c) => sync.verifyCode(e, c), signInPassword: (e, p) => sync.signInPassword(e, p), signUp: (e, p) => sync.signUp(e, p), setPassword: p => sync.setPassword(p), signOut: () => sync.signOut(), syncNow: () => { void sync.syncNow(); }, resolve: k => sync.resolve(k) }), [status, sync]);
   const ready = store.loaded && app.ready();
 
   // la data di oggi cambia a mezzanotte e quando l'app torna in primo piano

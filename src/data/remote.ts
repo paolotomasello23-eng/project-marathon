@@ -75,6 +75,15 @@ function authOf(sb: SupabaseClient): RemoteAuth {
       const { error } = await sb.auth.verifyOtp({ email, token: code, type: 'email' });
       if (error) throw new Error(error.message);
     },
+    async signUp(email, password) {
+      const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + '/profilo' } });
+      if (error) throw new Error(error.message);
+      // con la conferma via email attiva Supabase risponde senza sessione; se l'indirizzo esiste già, senza identità
+      if (!data.session && data.user && data.user.identities && data.user.identities.length === 0) throw new Error('User already registered');
+      return data.session ? 'ok' : 'confirm';
+    },
+    async signInPassword(email, password) { const { error } = await sb.auth.signInWithPassword({ email, password }); if (error) throw new Error(error.message); },
+    async setPassword(password) { const { error } = await sb.auth.updateUser({ password }); if (error) throw new Error(error.message); },
     async signOut() { const { error } = await sb.auth.signOut(); if (error) throw new Error(error.message); }
   };
 }

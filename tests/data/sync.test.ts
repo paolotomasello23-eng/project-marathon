@@ -4,7 +4,7 @@ import backup from '../../reference/data/backup.json';
 import { Actions } from '../../src/data/actions';
 import { MMDb } from '../../src/data/db';
 import { Store } from '../../src/data/store';
-import { type AuthUser, type DocKey, type Remote, type RemoteRow, Sync } from '../../src/data/sync';
+import { type AuthUser, type DocKey, msg, type Remote, type RemoteRow, Sync } from '../../src/data/sync';
 
 let seq = 0;
 const T0 = Date.parse('2026-11-17T08:00:00+01:00');
@@ -34,18 +34,36 @@ class Server {
   get(user: string, path: string) { const r = this.rows.get(user)?.get(path); return r ? r.data as Record<string, any> : undefined; } // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-interface Device { db: MMDb; store: Store; app: Actions; sync: Sync; login(u: AuthUser | null): Promise<void>; skew: number }
+/** Gli account del progetto: email → password e identificativo. confirm = il progetto chiede di confermare l'email. */
+class Accounts {
+  users = new Map<string, { id: string; password: string }>(); confirm = false;
+  signUp(email: string, password: string): AuthUser | 'confirm' {
+    if (this.users.has(email)) throw new Error('User already registered');
+    if (password.length < 6) throw new Error('Password should be at least 6 characters.');
+    const u = { id: 'u-' + (this.users.size + 1), password }; this.users.set(email, u);
+    return this.confirm ? 'confirm' : { id: u.id, email };
+  }
+  signIn(email: string, password: string): AuthUser { const u = this.users.get(email); if (!u || u.password !== password) throw new Error('Invalid login credentials'); if (this.confirm) throw new Error('Email not confirmed'); return { id: u.id, email }; }
+}
+
+interface Device { db: MMDb; store: Store; app: Actions; sync: Sync; login(u: AuthUser | null): Promise<void>; skew: number; foreign: string[]; linked: string[] }
 /** Un dispositivo con il suo archivio locale; skew = quanto il suo orologio è avanti (+) o indietro (−) rispetto al server. */
-async function device(server: Server, skew = 0): Promise<Device> {
+async function device(server: Server, skew = 0, accounts = new Accounts()): Promise<Device> {
   const db = new MMDb('sync-' + (++seq)), now = () => Date.now() + skew, store = new Store(db, null, now), app = new Actions(store, () => '2026-11-17');
-  let user: AuthUser | null = null; const subs: ((u: AuthUser | null) => void)[] = [];
+  let user: AuthUser | null = null; const subs: ((u: AuthUser | null) => void)[] = [], foreign: string[] = [], linked: string[] = [];
   const remote: Remote = {
-    auth: { user: async () => user, onChange: cb => { subs.push(cb); return () => { }; }, signIn: async () => { }, verifyCode: async () => { }, signOut: async () => { user = null; } },
+    auth: {
+      user: async () => user, onChange: cb => { subs.push(cb); return () => { }; }, signIn: async () => { }, verifyCode: async () => { },
+      signUp: async (email, password) => { const r = accounts.signUp(email, password); if (r === 'confirm') return 'confirm'; user = r; return 'ok'; },
+      signInPassword: async (email, password) => { user = accounts.signIn(email, password); },
+      setPassword: async password => { if (!user) throw new Error('nessun accesso'); accounts.users.get(user.email as string)!.password = password; },
+      signOut: async () => { user = null; }
+    },
     docs: id => Object.assign(server.docs(id), { offset: () => -skew })
   };
-  const sync = new Sync(store, async () => remote, { now, auto: false });
+  const sync = new Sync(store, async () => remote, { now, auto: false, onForeign: id => { foreign.push(id); }, onLinked: id => { if (linked[linked.length - 1] !== id) linked.push(id); } });
   await store.load(); await sync.start();
-  return { db, store, app, sync, skew, login: async u => { user = u; subs.forEach(f => f(u)); await new Promise(r => setTimeout(r, 0)); await sync.syncNow(); } };
+  return { db, store, app, sync, skew, foreign, linked, login: async u => { user = u; subs.forEach(f => f(u)); await new Promise(r => setTimeout(r, 0)); await sync.syncNow(); } };
 }
 const paolo: AuthUser = { id: 'u-paolo', email: 'paolo@example.com' };
 const run = (d: Device, sid: string, extra: object = {}) => { const s = d.app.session(sid)!; return d.app.saveWorkout({ date: s.d, k: 'run', sub: s.s, sid, km: s.km as number, sec: Math.round((s.km as number) * 375), rpe: 3, ...extra }); };
@@ -115,11 +133,69 @@ describe('primo collegamento', () => {
     expect(server.rows.get('u-paolo')!.size).toBe(12); // la nota "dati ripristinati" è diversa sui due dispositivi: restano entrambe
   });
 
-  it('un altro account sullo stesso dispositivo riparte dal primo collegamento', async () => {
+  it('un altro account sullo stesso dispositivo non riceve i dati del primo: l’app deve passare a un archivio separato', async () => {
     const { server, phone } = await pair();
+    expect(phone.linked).toEqual(['u-paolo']); // l'archivio locale è di Paolo
     await phone.sync.signOut(); expect(phone.sync.getStatus().email).toBeNull();
-    await phone.login({ id: 'u-altro', email: 'altro@example.com' });
-    expect(server.rows.get('u-altro')!.size).toBe(11); expect(server.rows.get('u-paolo')!.size).toBe(11);
+    const n = server.pushes;
+    await phone.login({ id: 'u-amico', email: 'amico@example.com' });
+    expect([...new Set(phone.foreign)]).toEqual(['u-amico']); // richiesta di cambio archivio (nell'app: ricarica sull'archivio dell'amico)
+    expect(server.rows.get('u-amico')).toBeUndefined(); expect(server.pushes).toBe(n); // nulla è salito sull'account dell'amico
+    expect(server.rows.get('u-paolo')!.size).toBe(11); expect(phone.store.S.plan!.sessions.length).toBe(161); // i dati di Paolo restano dove sono
+    expect(await phone.db.getMeta('sync:user')).toBe('u-paolo');
+  });
+});
+
+describe('account con email e password', () => {
+  it('creo un account dal telefono con i miei dati, entro dal computer con la stessa password e li ritrovo', async () => {
+    vi.setSystemTime(T0);
+    const server = new Server(), acc = new Accounts(), phone = await device(server, 0, acc), laptop = await device(server, 0, acc);
+    phone.app.importObject(backup); await phone.store.idle();
+    expect(await phone.sync.signUp('paolo@example.com', 'maratona27')).toEqual({ error: null, confirm: false });
+    expect(phone.sync.getStatus()).toMatchObject({ email: 'paolo@example.com', first: true, pending: 0 }); expect(server.rows.get('u-1')!.size).toBe(11);
+    expect(await laptop.sync.signInPassword('paolo@example.com', 'maratona27')).toBeNull();
+    expect(laptop.app.ready()).toBe(true); expect(laptop.store.S.plan).toEqual(phone.store.S.plan);
+  });
+
+  it('due persone, due account: ognuno vede solo i propri dati', async () => {
+    vi.setSystemTime(T0);
+    const server = new Server(), acc = new Accounts(), mio = await device(server, 0, acc), suo = await device(server, 0, acc);
+    mio.app.importObject(backup); await mio.store.idle(); await mio.sync.signUp('paolo@example.com', 'maratona27');
+    await suo.sync.signUp('amico@example.com', 'altra-password');
+    expect(suo.app.ready()).toBe(false); expect(Object.keys(suo.store.S.changes)).toEqual([]); // account nuovo: nessun dato, si parte dalla creazione del piano
+    suo.app.createPlan({ name: 'Amico', raceDate: '2027-04-25', refDist: 10, refSec: 3300, goalSec: 15300 }); await suo.store.idle(); await suo.sync.syncNow();
+    expect((server.get('u-2', 'app/core') as { profile: { name: string } }).profile.name).toBe('Amico'); expect((server.get('u-1', 'app/core') as { profile: { name: string } }).profile.name).toBe('Paolo');
+    tick(1000); await mio.sync.syncNow(); expect(mio.store.S.core!.profile.name).toBe('Paolo'); expect(mio.store.S.core!.goal.sec).toBe(14400);
+  });
+
+  it('errori in italiano: password sbagliata, email già registrata, password corta', async () => {
+    const server = new Server(), acc = new Accounts(), d = await device(server, 0, acc);
+    await d.sync.signUp('paolo@example.com', 'maratona27'); await d.sync.signOut();
+    expect(await d.sync.signInPassword('paolo@example.com', 'sbagliata')).toBe('Email o password non corretti.');
+    expect(await d.sync.signInPassword('nessuno@example.com', 'x')).toBe('Email o password non corretti.');
+    expect(await d.sync.signUp('paolo@example.com', 'maratona27')).toEqual({ error: 'Esiste già un account con questa email: accedi.', confirm: false });
+    expect(await d.sync.signUp('nuovo@example.com', '123')).toEqual({ error: 'Password troppo corta: almeno 6 caratteri.', confirm: false });
+    expect(d.sync.getStatus().email).toBeNull();
+    expect(msg(new Error('Token has expired or is invalid'))).toBe('Codice scaduto o non valido.'); expect(msg(new TypeError('Failed to fetch'))).toBe('Senza rete: riprova quando sei collegato.');
+    expect(msg(new Error('Email address not authorized'))).toBe('Email non inviata: il progetto non ha un servizio email per questo indirizzo.'); expect(msg(new Error('qualcosa di nuovo'))).toBe('qualcosa di nuovo');
+  });
+
+  it('se il progetto chiede la conferma via email, l’account è creato ma non si entra finché non è confermato', async () => {
+    const server = new Server(), acc = new Accounts(); acc.confirm = true;
+    const d = await device(server, 0, acc);
+    expect(await d.sync.signUp('paolo@example.com', 'maratona27')).toEqual({ error: null, confirm: true });
+    expect(d.sync.getStatus().email).toBeNull(); expect(server.pushes).toBe(0);
+    expect(await d.sync.signInPassword('paolo@example.com', 'maratona27')).toBe('Email non ancora confermata: apri il link ricevuto.');
+  });
+
+  it('cambio della password dall’account collegato', async () => {
+    const server = new Server(), acc = new Accounts(), d = await device(server, 0, acc);
+    expect(await d.sync.setPassword('nuova-password')).toBe('Accesso non configurato.'); // senza accesso non si può
+    await d.sync.signUp('paolo@example.com', 'maratona27');
+    expect(await d.sync.setPassword('nuova-password')).toBeNull();
+    await d.sync.signOut();
+    expect(await d.sync.signInPassword('paolo@example.com', 'maratona27')).toBe('Email o password non corretti.');
+    expect(await d.sync.signInPassword('paolo@example.com', 'nuova-password')).toBeNull();
   });
 });
 
@@ -137,7 +213,7 @@ describe('sincronizzazione tra telefono e computer', () => {
     const { server, phone, laptop } = await pair(); tick(60000);
     server.online = false;
     const w = run(phone, 'bw01-q'); await phone.sync.syncNow();
-    expect(phone.sync.getStatus()).toMatchObject({ error: 'Failed to fetch', pending: 2 }); // l'allenamento e il piano con la sessione segnata come fatta
+    expect(phone.sync.getStatus()).toMatchObject({ error: 'Senza rete: riprova quando sei collegato.', pending: 2 }); // l'allenamento e il piano con la sessione segnata come fatta
     expect(phone.store.S.workouts[w.id].eval!.rating).toBe('ottimo'); // offline l'app funziona comunque
     expect(server.get('u-paolo', 'workouts/' + w.id)).toBeUndefined();
     tick(3600000); server.online = true; await phone.sync.syncNow();

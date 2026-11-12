@@ -18,6 +18,9 @@ export interface AccountApi {
   status: SyncStatus;
   signIn(email: string): Promise<string | null>;
   verifyCode(email: string, code: string): Promise<string | null>;
+  signInPassword(email: string, password: string): Promise<string | null>;
+  signUp(email: string, password: string): Promise<{ error: string | null; confirm: boolean }>;
+  setPassword(password: string): Promise<string | null>;
   signOut(): Promise<void>;
   syncNow(): void;
   resolve(keep: 'local' | 'remote'): Promise<void>;

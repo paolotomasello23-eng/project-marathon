@@ -46,5 +46,6 @@ test('sincronizzazione configurata: la build contiene l’indirizzo di Supabase 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Crea il piano' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Account' }), 'la build è stata fatta senza VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY: aggiungile nelle variabili d’ambiente dell’hosting e ripubblica').toBeVisible();
-  await expect(page.getByLabel('Email')).toBeVisible(); await expect(page.getByRole('button', { name: 'Invia link' })).toBeVisible();
+  await expect(page.getByLabel('Email')).toBeVisible(); await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Accedi', exact: true })).toBeVisible(); await expect(page.getByRole('button', { name: 'Crea account' })).toBeVisible();
 });

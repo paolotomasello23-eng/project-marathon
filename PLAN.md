@@ -39,9 +39,9 @@ Scelte tecniche dentro i paletti del prompt:
 | 1 | Dominio in TypeScript con test | Vitest riproduce `recovery.js` e gli scenari di `logic.js` | fatta |
 | 2 | App locale su IndexedDB, importazione del backup | flusso completo con i dati importati | fatta (`tests/e2e/flow.spec.ts`) |
 | 3 | PWA: manifest, icone, service worker | installabile; in modalità aereo si apre e salva | fatta su Chromium: Lighthouse 11.7.1 PWA 100, `tests/e2e/pwa.spec.ts`. Da provare su telefoni veri |
-| 4 | Account e sincronizzazione Supabase | telefono → computer; offline → online | tabella e regole verificate sul progetto vero; **accesso vero da provare** |
+| 4 | Account e sincronizzazione Supabase | telefono → computer; offline → online | account con email e password; tabella e regole verificate sul progetto vero; **accesso vero da provare** |
 | 5 | `.ics`, promemoria locali, cambio data di gara | — | fatta |
-| 6 | Build, variabili d'ambiente, deploy, README | — | pubblicata su Vercel; **build da rifare con le variabili di Supabase** |
+| 6 | Build, variabili d'ambiente, deploy, README | — | pubblicata su Vercel e configurata (`npm run test:deploy`: 3 su 3) |
 
 ## Decisioni prese lungo la strada (dimmi se una non ti va)
 
@@ -67,12 +67,17 @@ Scelte tecniche dentro i paletti del prompt:
 
 ## Stato al 12 novembre, dopo il deploy
 
-- Supabase: tabella `docs` creata; `npm run test:supabase` passa 5 su 5 (richieste dell'app accettate dall'API vera, chi non ha fatto l'accesso non vede e non scrive, accesso via email attivo, orario del server leggibile).
-- App pubblicata su https://project-marathon-blush.vercel.app: indirizzi, installabilità e uso offline verificati (`npm run test:deploy`: 2 su 3).
-- **La build pubblicata non contiene le variabili di Supabase**: la scheda Account non compare e l'app resta locale.
+- Supabase: tabella `docs` creata; `npm run test:supabase` passa 5 su 5.
+- App pubblicata su https://project-marathon-blush.vercel.app; `npm run test:deploy` passa 3 su 3 (indirizzi, installabilità e uso offline, configurazione di Supabase nella build). Le variabili su Vercel si chiamano `SUPABASE_URL` e `SUPABASE_ANON_KEY`: la build ora accetta anche questi nomi.
+
+## Account per più persone (richiesta del 12 novembre)
+
+- **Email e password.** Chiunque crea il proprio account e accede da più dispositivi; ogni account vede solo i propri dati. Il link via email resta come alternativa ("Accedi con un link via email"), ma richiede un servizio SMTP: Supabase non lascia modificare i modelli delle email senza, e su iPhone serve il codice nel testo dell'email.
+- **Nessuna email in gioco** se in Supabase si disattiva *Confirm email*: è il passo che manca perché gli amici possano iscriversi.
+- **Un archivio locale per account.** Sullo stesso dispositivo i dati di due account non si mescolano: entrando con un account diverso l'app passa al suo archivio (IndexedDB separato) e ricarica. Le impostazioni dei promemoria sono del dispositivo, non dell'account.
+- **Password dimenticata**: senza servizio email non c'è recupero via email; i dati restano sul dispositivo e si possono portare in un account nuovo con Backup → Ripristina backup.
 
 ## Cosa manca per chiudere
 
-1. Vercel → Settings → Environment Variables: aggiungere `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`, poi Deployments → ⋯ → Redeploy.
-2. Supabase → Authentication: *Site URL* = indirizzo di Vercel, *Redirect URLs* = lo stesso seguito da `/profilo`; `{{ .Token }}` nei modelli email *Confirm signup* e *Magic Link*.
-3. Prova vera su iPhone: installazione, accesso con codice, allenamento che compare sul computer, uno registrato in modalità aereo che si sincronizza al ritorno della rete, notifica.
+1. Supabase → Authentication → Sign In / Providers → Email: disattivare *Confirm email*.
+2. Prova vera su iPhone: installazione, *Crea account*, allenamento che compare sul computer, uno registrato in modalità aereo che si sincronizza al ritorno della rete, notifica.

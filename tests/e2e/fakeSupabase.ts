@@ -16,6 +16,10 @@ export class FakeSupabase {
   /** Email a cui è stato chiesto il link di accesso, con l'indirizzo di ritorno. */
   otp: { email: string; redirect: string | null }[] = [];
   requests: string[] = [];
+  /** Password degli account creati con email e password. */
+  passwords = new Map<string, string>();
+  /** true = il progetto chiede di confermare l'email prima di entrare (impostazione "Confirm email"). */
+  confirm = false;
   private offline = new Set<BrowserContext>();
 
   async attach(ctx: BrowserContext): Promise<void> { await ctx.route(SUPABASE + '/**', route => this.handle(ctx, route)); }
@@ -36,7 +40,7 @@ export class FakeSupabase {
 
   private async handle(ctx: BrowserContext, route: Route): Promise<void> {
     const req = route.request(), url = new URL(req.url()), q = url.searchParams;
-    const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,PATCH,DELETE,OPTIONS', 'access-control-max-age': '600' };
+    const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS', 'access-control-max-age': '600' };
     const json = (status: number, body: unknown) => route.fulfill({ status, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify(body) });
     if (this.offline.has(ctx)) return route.abort('internetdisconnected');
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
@@ -44,7 +48,21 @@ export class FakeSupabase {
 
     if (url.pathname === '/auth/v1/otp') { const b = req.postDataJSON(); this.otp.push({ email: b.email, redirect: q.get('redirect_to') }); return json(200, {}); }
     if (url.pathname === '/auth/v1/verify') { const b = req.postDataJSON(); return b.token === CODE && b.type === 'email' ? json(200, this.session(b.email)) : json(403, { code: 403, error_code: 'otp_expired', msg: 'Token has expired or is invalid' }); }
+    if (url.pathname === '/auth/v1/signup') {
+      const b = req.postDataJSON();
+      if (this.passwords.has(b.email)) return json(422, { code: 422, error_code: 'user_already_exists', msg: 'User already registered' });
+      if (String(b.password || '').length < 6) return json(422, { code: 422, error_code: 'weak_password', msg: 'Password should be at least 6 characters.' });
+      this.passwords.set(b.email, b.password);
+      const sess = this.session(b.email);
+      return json(200, this.confirm ? { ...sess.user, identities: [{ id: sess.user.id, provider: 'email' }], confirmation_sent_at: '2026-11-17T07:00:00Z' } : sess);
+    }
+    if (url.pathname === '/auth/v1/token' && q.get('grant_type') === 'password') {
+      const b = req.postDataJSON();
+      if (this.passwords.get(b.email) !== b.password) return json(400, { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
+      return this.confirm ? json(400, { code: 400, error_code: 'email_not_confirmed', msg: 'Email not confirmed' }) : json(200, this.session(b.email));
+    }
     if (url.pathname === '/auth/v1/token') { const id = String(req.postDataJSON().refresh_token || '').replace('rinnovo-', ''), email = [...this.users].find(e => e[1] === id); return email ? json(200, this.session(email[0])) : json(400, { error: 'invalid_grant' }); }
+    if (url.pathname === '/auth/v1/user' && req.method() === 'PUT') { const id = this.uid(route), email = [...this.users].find(e => e[1] === id), b = req.postDataJSON(); if (!email) return json(401, { msg: 'invalid token' }); if (b.password) this.passwords.set(email[0], b.password); return json(200, this.session(email[0]).user); }
     if (url.pathname === '/auth/v1/logout') return route.fulfill({ status: 204, headers: cors });
     if (url.pathname === '/auth/v1/user') { const id = this.uid(route), email = [...this.users].find(e => e[1] === id); return email ? json(200, this.session(email[0]).user) : json(401, { msg: 'invalid token' }); }
 

@@ -3,7 +3,7 @@
    I dati non passano di qui: stanno in IndexedDB e la sincronizzazione parla direttamente con il server. */
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
-import { MMDb } from './data/db';
+import { deviceDb } from './data/db';
 import { iso } from './domain/plan';
 import { fromHour, REM_TAG, type Reminder } from './lib/reminders';
 
@@ -24,16 +24,16 @@ self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
 
 async function remind(): Promise<void> {
   if (!('Notification' in self) || Notification.permission !== 'granted') return;
-  const db = new MMDb();
-  try {
+  const db = deviceDb();
+  {
     if (!(await db.getMeta<boolean>('rem:on'))) return;
     const t = iso(new Date()), now = new Date();
-    if ((await db.getMeta<string>('rem:last')) === t || now.getHours() < await fromHour(db)) return;
+    if ((await db.getMeta<string>('rem:last')) === t || now.getHours() < await fromHour()) return;
     const r = ((await db.getMeta<Reminder[]>('rem:plan')) || []).find(x => x.d === t);
     if (!r) return;
     await self.registration.showNotification(r.title, { body: r.body, tag: REM_TAG, icon: '/icon-192.png', badge: '/maskable-192.png', lang: 'it', data: { url: '/' } });
     await db.setMeta('rem:last', t);
-  } finally { db.close(); }
+  }
 }
 self.addEventListener('periodicsync', e => { const ev = e as ExtendableEvent & { tag: string }; if (ev.tag === REM_TAG) ev.waitUntil(remind()); });
 self.addEventListener('notificationclick', e => {

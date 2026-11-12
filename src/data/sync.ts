@@ -35,6 +35,11 @@ export interface RemoteAuth {
   signIn(email: string): Promise<void>;
   /** Accesso con il codice a 6 cifre contenuto nella stessa email (serve nell'app installata su iPhone). */
   verifyCode(email: string, code: string): Promise<void>;
+  /** Crea un account con email e password. 'confirm' = il progetto chiede di confermare l'email prima di entrare. */
+  signUp(email: string, password: string): Promise<'ok' | 'confirm'>;
+  signInPassword(email: string, password: string): Promise<void>;
+  /** Imposta una nuova password per l'account collegato. */
+  setPassword(password: string): Promise<void>;
   signOut(): Promise<void>;
 }
 export interface Remote { auth: RemoteAuth; docs(userId: string): RemoteDocs }
@@ -61,6 +66,8 @@ const ms = (t: string) => Date.parse(t);
 const key = (r: { coll: string; id: string }) => r.coll + '/' + r.id;
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
+export interface SyncOptions { now?: () => number; auto?: boolean; onLinked?: (userId: string) => void; onForeign?: (userId: string) => void }
+
 export class Sync {
   private status: SyncStatus;
   private subs = new Set<() => void>();
@@ -76,12 +83,18 @@ export class Sync {
   private readonly now: () => number;
   private readonly auto: boolean;
 
+  private readonly onLinked: ((userId: string) => void) | null;
+  private readonly onForeign: ((userId: string) => void) | null;
+
   /**
    * loadRemote: crea il collegamento al server (null = app non configurata, resta solo locale).
    * auto: false disattiva i giri automatici (scritture, ritorno della rete, intervallo): lo usano i test.
+   * onLinked: l'archivio locale appartiene a questo account. onForeign: sul dispositivo ci sono i dati di un altro
+   * account; chi riceve la chiamata deve passare all'archivio locale di quello nuovo (i dati non si mescolano mai).
    */
-  constructor(private readonly store: Store, private readonly loadRemote: (() => Promise<Remote | null>) | null, opts: { now?: () => number; auto?: boolean } = {}) {
+  constructor(private readonly store: Store, private readonly loadRemote: (() => Promise<Remote | null>) | null, opts: SyncOptions = {}) {
     this.now = opts.now || Date.now; this.auto = opts.auto !== false;
+    this.onLinked = opts.onLinked || null; this.onForeign = opts.onForeign || null;
     this.status = Object.assign({}, LOCAL_ONLY, { configured: !!loadRemote });
   }
 
@@ -129,6 +142,19 @@ export class Sync {
     if (!this.remote) return 'Accesso non configurato.';
     try { await this.remote.auth.verifyCode(email, code); await this.setUser(await this.remote.auth.user()); return null; } catch (e) { return msg(e); }
   }
+  /** Crea un account. confirm = l'account c'è ma va confermato dall'email prima di poter entrare. */
+  async signUp(email: string, password: string): Promise<{ error: string | null; confirm: boolean }> {
+    if (!this.remote) return { error: 'Accesso non configurato.', confirm: false };
+    try { const r = await this.remote.auth.signUp(email, password); if (r === 'ok') await this.setUser(await this.remote.auth.user()); return { error: null, confirm: r === 'confirm' }; } catch (e) { return { error: msg(e), confirm: false }; }
+  }
+  async signInPassword(email: string, password: string): Promise<string | null> {
+    if (!this.remote) return 'Accesso non configurato.';
+    try { await this.remote.auth.signInPassword(email, password); await this.setUser(await this.remote.auth.user()); return null; } catch (e) { return msg(e); }
+  }
+  async setPassword(password: string): Promise<string | null> {
+    if (!this.remote || !this.user) return 'Accesso non configurato.';
+    try { await this.remote.auth.setPassword(password); return null; } catch (e) { return msg(e); }
+  }
   async signOut(): Promise<void> { if (this.remote) { try { await this.remote.auth.signOut(); } catch { /* offline: la sessione locale viene comunque chiusa */ } await this.setUser(null); } }
 
   /** Un giro di sincronizzazione: scarica, risolve i conflitti, invia la coda. Mai due giri insieme. */
@@ -150,9 +176,16 @@ export class Sync {
     this.set({ busy: true });
     try {
       await this.store.idle();
-      const linked = await db.getMeta<string>('sync:user'), heads = await docs.heads();
+      const linked = await db.getMeta<string>('sync:user');
+      if (linked && linked !== u.id) {
+        // questo archivio locale è di un altro account: non lo si unisce né lo si invia a quello nuovo
+        if (this.onForeign) this.onForeign(u.id); else this.set({ error: 'Su questo dispositivo ci sono i dati di un altro account.' });
+        return;
+      }
+      const heads = await docs.heads();
       if (linked !== u.id) { if (!(await this.firstLink(u, docs, heads))) return; }
       else {
+        if (this.onLinked) this.onLinked(u.id);
         const local = new Map((await db.docs.toArray() as DocRowRev[]).map(r => [key(r), r.rev]));
         const changed = heads.filter(h => local.get(key(h)) !== ms(h.updated_at));
         if (changed.length) await this.merge(await docs.get(changed), off(docs));
@@ -208,6 +241,7 @@ export class Sync {
       for (const r of rev) await db.docs.put(r);
       await db.meta.put({ k: 'sync:user', v: u.id });
     });
+    if (this.onLinked) this.onLinked(u.id);
     await this.store.applyRemote(apply);
     if (apply.length) this.reconcile();
   }
@@ -268,4 +302,21 @@ export class Sync {
 }
 
 function off(docs: RemoteDocs): number { const o = docs.offset ? docs.offset() : 0; return isFinite(o) ? o : 0; }
-function msg(e: unknown): string { return e instanceof Error ? e.message : typeof e === 'string' ? e : 'Errore di rete'; }
+/** Messaggi di errore del servizio di accesso, in italiano. Quelli non riconosciuti restano come arrivano. */
+export function msg(e: unknown): string {
+  const m = e instanceof Error ? e.message : typeof e === 'string' ? e : '';
+  if (!m) return 'Errore di rete';
+  if (/invalid login credentials/i.test(m)) return 'Email o password non corretti.';
+  if (/email not confirmed/i.test(m)) return 'Email non ancora confermata: apri il link ricevuto.';
+  if (/already (been )?registered|user already exists/i.test(m)) return 'Esiste già un account con questa email: accedi.';
+  const len = /password should be at least (\d+)/i.exec(m); if (len) return 'Password troppo corta: almeno ' + len[1] + ' caratteri.';
+  if (/weak password|password is too weak|should contain/i.test(m)) return 'Password troppo semplice.';
+  if (/different from the old password/i.test(m)) return 'La nuova password deve essere diversa dalla precedente.';
+  if (/rate limit|only request this after|too many requests/i.test(m)) return 'Troppe richieste: riprova tra qualche minuto.';
+  if (/signups? not allowed|signup is disabled/i.test(m)) return 'Le registrazioni sono chiuse.';
+  if (/token has expired or is invalid|otp.*(expired|invalid)/i.test(m)) return 'Codice scaduto o non valido.';
+  if (/not authorized|error sending .*email|unable to send/i.test(m)) return 'Email non inviata: il progetto non ha un servizio email per questo indirizzo.';
+  if (/invalid format|unable to validate email|email address .* is invalid/i.test(m)) return 'Indirizzo email non valido.';
+  if (/failed to fetch|networkerror|load failed|network request failed/i.test(m)) return 'Senza rete: riprova quando sei collegato.';
+  return m;
+}

@@ -5,7 +5,7 @@
      installata), a un orario che decide il sistema. Su iPhone la notifica arriva solo aprendo l'app. */
 import * as P from '../domain/plan';
 import type { Actions } from '../data/actions';
-import type { MMDb } from '../data/db';
+import { deviceDb } from '../data/db';
 import type { Iso, Session } from '../domain/types';
 
 export interface Reminder { d: Iso; title: string; body: string }
@@ -13,7 +13,7 @@ export type ReminderState = 'unsupported' | 'blocked' | 'on' | 'off';
 export const REM_TAG = 'madrid27-promemoria';
 /** Nessuna notifica prima di quest'ora (si può cambiare scrivendo `rem:hour` nell'archivio locale). */
 export const FROM_HOUR = 6;
-export async function fromHour(db: MMDb): Promise<number> { const h = await db.getMeta<number>('rem:hour'); return typeof h === 'number' ? h : FROM_HOUR; }
+export async function fromHour(): Promise<number> { const h = await deviceDb().getMeta<number>('rem:hour'); return typeof h === 'number' ? h : FROM_HOUR; }
 
 /** La sessione da ricordare in un giorno: tra quelle ancora da fare, prima la corsa, poi la forza, poi il resto. */
 function mainOn(app: Actions, d: Iso): Session | null {
@@ -34,10 +34,10 @@ export function reminderSchedule(app: Actions, from: Iso, days = 21): Reminder[]
 }
 
 export function remindersSupported(): boolean { return typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator; }
-export async function reminderState(db: MMDb): Promise<ReminderState> {
+export async function reminderState(): Promise<ReminderState> {
   if (!remindersSupported()) return 'unsupported';
   if (Notification.permission === 'denied') return 'blocked';
-  return Notification.permission === 'granted' && (await db.getMeta<boolean>('rem:on')) ? 'on' : 'off';
+  return Notification.permission === 'granted' && (await deviceDb().getMeta<boolean>('rem:on')) ? 'on' : 'off';
 }
 
 async function registration(): Promise<ServiceWorkerRegistration | null> {
@@ -55,18 +55,18 @@ export async function enableReminders(app: Actions, t: Iso): Promise<ReminderSta
   if (!remindersSupported()) return 'unsupported';
   const p = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
   if (p !== 'granted') return p === 'denied' ? 'blocked' : 'off';
-  await app.store.db.setMeta('rem:on', true);
+  await deviceDb().setMeta('rem:on', true);
   await periodic(true);
   await checkReminder(app, t, true);
   return 'on';
 }
 /** Cambia l'ora prima della quale non arrivano promemoria (0–23). */
 export async function setReminderHour(app: Actions, t: Iso, hour: number): Promise<void> {
-  await app.store.db.setMeta('rem:hour', Math.max(0, Math.min(23, Math.round(hour))));
+  await deviceDb().setMeta('rem:hour', Math.max(0, Math.min(23, Math.round(hour))));
   await checkReminder(app, t);
 }
-export async function disableReminders(db: MMDb): Promise<ReminderState> {
-  await db.setMeta('rem:on', false); await periodic(false);
+export async function disableReminders(): Promise<ReminderState> {
+  await deviceDb().setMeta('rem:on', false); await periodic(false);
   return 'off';
 }
 
@@ -75,11 +75,11 @@ export async function disableReminders(db: MMDb): Promise<ReminderState> {
  * service worker e, se oggi c'è un allenamento non ancora notificato, mostra la notifica. now = forza l'orario.
  */
 export async function checkReminder(app: Actions, t: Iso, now = false): Promise<boolean> {
-  const db = app.store.db;
+  const db = deviceDb(); // impostazioni del dispositivo: le legge anche il service worker, qualunque account sia in uso
   if (!remindersSupported() || Notification.permission !== 'granted' || !(await db.getMeta<boolean>('rem:on'))) return false;
   await db.setMeta('rem:plan', reminderSchedule(app, t));
   const r = reminderFor(app, t);
-  if (!r || (await db.getMeta<string>('rem:last')) === t || (!now && new Date().getHours() < await fromHour(db))) return false;
+  if (!r || (await db.getMeta<string>('rem:last')) === t || (!now && new Date().getHours() < await fromHour())) return false;
   const reg = await registration();
   try {
     if (reg) await reg.showNotification(r.title, { body: r.body, tag: REM_TAG, icon: '/icon-192.png', badge: '/maskable-192.png', lang: 'it', data: { url: '/' } });

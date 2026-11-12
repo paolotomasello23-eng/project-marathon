@@ -30,6 +30,7 @@ export default function Onboarding() {
     <Head title="Crea il piano" />
     <div className="stack" style={{ gap: 12 }}>
       <SyncBanner />
+      {account.status.configured ? <AccountCard /> : null}
       <article className="card"><form className="stack" style={{ gap: 12 }} onSubmit={submit}>
         <div className="fgrid">
           <div className="field"><label htmlFor="ob-name">Nome</label><input id="ob-name" autoComplete="given-name" value={f.name} onChange={set('name')} /></div>
@@ -44,7 +45,6 @@ export default function Onboarding() {
         <button className="btn pri" type="submit">Genera</button>
       </form></article>
       <ImportBox label="Oppure ripristina un backup" />
-      {account.status.configured ? <AccountCard /> : null}
     </div>
   </>;
 }

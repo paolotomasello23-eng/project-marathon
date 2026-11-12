@@ -70,19 +70,26 @@ function Gara() {
   </form></article>;
 }
 
+const MIN_PASSWORD = 8;
+
 export function AccountCard() {
   const { account } = useApp(), s = account.status;
-  const [email, setEmail] = useState(''), [code, setCode] = useState(''), [sent, setSent] = useState(false), [busy, setBusy] = useState(false);
+  const [email, setEmail] = useState(''), [pw, setPw] = useState(''), [code, setCode] = useState(''), [sent, setSent] = useState(false), [busy, setBusy] = useState(false), [note, setNote] = useState('');
+  const [newPw, setNewPw] = useState('');
   if (!s.configured) return null;
-  const send = async (e: FormEvent) => {
-    e.preventDefault(); if (!email.trim()) return;
-    setBusy(true); const err = await account.signIn(email.trim()); setBusy(false);
-    if (err) toast(err); else setSent(true);
+  const run = async (f: () => Promise<string | null>) => { setBusy(true); setNote(''); const err = await f(); setBusy(false); if (err) toast(err); return !err; };
+  const login = (e: FormEvent) => { e.preventDefault(); if (!email.trim() || !pw) return; void run(() => account.signInPassword(email.trim(), pw)); };
+  const create = () => {
+    if (!email.trim()) { toast('Scrivi la tua email.'); return; }
+    if (pw.length < MIN_PASSWORD) { toast('Password troppo corta: almeno ' + MIN_PASSWORD + ' caratteri.'); return; }
+    void run(async () => { const r = await account.signUp(email.trim(), pw); if (!r.error && r.confirm) setNote('Controlla l’email per confermare l’account.'); return r.error; });
   };
-  const verify = async (e: FormEvent) => {
-    e.preventDefault(); if (!code.trim()) return;
-    setBusy(true); const err = await account.verifyCode(email.trim(), code.trim()); setBusy(false);
-    if (err) toast(err);
+  const link = () => { if (!email.trim()) { toast('Scrivi la tua email.'); return; } void run(() => account.signIn(email.trim())).then(ok => { if (ok) setSent(true); }); };
+  const verify = (e: FormEvent) => { e.preventDefault(); if (!code.trim()) return; void run(() => account.verifyCode(email.trim(), code.trim())); };
+  const change = (e: FormEvent) => {
+    e.preventDefault();
+    if (newPw.length < MIN_PASSWORD) { toast('Password troppo corta: almeno ' + MIN_PASSWORD + ' caratteri.'); return; }
+    void run(() => account.setPassword(newPw)).then(ok => { if (ok) { setNewPw(''); toast('Password salvata.'); } });
   };
   return <article className="card">
     <div className="row between"><h2>Account</h2>{s.email ? <Chip tone={s.choice || s.error ? 'warn' : 'ok'}>{s.choice ? 'Da scegliere' : s.pending ? s.pending + ' da inviare' : s.error ? 'Non aggiornato' : 'Sincronizzato'}</Chip> : <Chip>Solo qui</Chip>}</div>
@@ -90,14 +97,21 @@ export function AccountCard() {
       <p className="small muted">{s.email}</p>
       {s.choice ? <><p className="small">Questo dispositivo e l’account hanno piani diversi.</p><div className="btns"><button className="btn pri" onClick={() => account.resolve('remote')}>Usa l’account</button><button className="btn" onClick={() => account.resolve('local')}>Usa questo dispositivo</button></div></> : null}
       <div className="btns">{s.choice ? null : <button className="btn" onClick={() => account.syncNow()}>Sincronizza</button>}<button className="btn" onClick={() => account.signOut()}>Esci</button></div>
+      <details className="grp"><summary>Password</summary><div className="body"><form className="stack" style={{ gap: 12 }} onSubmit={change}>
+        <div className="field"><label htmlFor="ac-newpw">Nuova password</label><input type="password" id="ac-newpw" autoComplete="new-password" value={newPw} onChange={e => setNewPw(e.target.value)} /></div>
+        <button className="btn" type="submit" disabled={busy || !newPw}>Salva</button>
+      </form></div></details>
     </> : sent ? <form className="stack" style={{ gap: 12 }} onSubmit={verify}>
       <p className="small">Link inviato a {email}.</p>
       <div className="field"><label htmlFor="ac-code">Codice</label><input id="ac-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={e => setCode(e.target.value)} /></div>
       <div className="btns"><button className="btn pri" type="submit" disabled={busy || !code.trim()}>Accedi</button><button className="btn" type="button" onClick={() => { setSent(false); setCode(''); }}>Indietro</button></div>
     </form>
-      : <form className="stack" style={{ gap: 12 }} onSubmit={send}>
-        <div className="field"><label htmlFor="ac-email">Email</label><input type="email" id="ac-email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} /></div>
-        <button className="btn pri" type="submit" disabled={busy}>Invia link</button>
+      : <form className="stack" style={{ gap: 12 }} onSubmit={login}>
+        <div className="field"><label htmlFor="ac-email">Email</label><input type="email" id="ac-email" autoComplete="email" autoCapitalize="none" required value={email} onChange={e => setEmail(e.target.value)} /></div>
+        <div className="field"><label htmlFor="ac-pw">Password</label><input type="password" id="ac-pw" autoComplete="current-password" value={pw} onChange={e => setPw(e.target.value)} /></div>
+        {note ? <p className="small" role="status">{note}</p> : null}
+        <div className="btns"><button className="btn pri" type="submit" disabled={busy}>Accedi</button><button className="btn" type="button" disabled={busy} onClick={create}>Crea account</button></div>
+        <button className="linkbtn" type="button" disabled={busy} onClick={link}>Accedi con un link via email</button>
       </form>}
   </article>;
 }
@@ -125,14 +139,14 @@ function Promemoria({ rem, setRem }: { rem: Rem | null; setRem: (r: Rem) => void
   return <article className="card">
     <div className="row between"><h2>Promemoria</h2><Chip tone={st === 'on' ? 'ok' : st === 'blocked' ? 'warn' : ''}>{label}</Chip></div>
     <div className="field"><label htmlFor="rm-hour">Non prima delle</label><select id="rm-hour" value={rem.hour} onChange={e => { const hour = +e.target.value; setRem({ st, hour }); void setReminderHour(app, t, hour); }}>{Array.from({ length: 24 }, (_, h) => <option key={h} value={h}>{h}:00</option>)}</select></div>
-    {st === 'on' ? <button className="btn" onClick={async () => setRem({ st: await disableReminders(app.store.db), hour: rem.hour })}>Disattiva</button>
+    {st === 'on' ? <button className="btn" onClick={async () => setRem({ st: await disableReminders(), hour: rem.hour })}>Disattiva</button>
       : st === 'off' ? <button className="btn" onClick={async () => { const r = await enableReminders(app, t); setRem({ st: r, hour: rem.hour }); if (r === 'blocked') toast('Notifiche bloccate: riattivale dalle impostazioni del dispositivo.'); }}>Attiva</button> : null}
   </article>;
 }
 
 export default function Profilo() {
-  const { app } = useApp(), [rem, setRem] = useState<Rem | null>(null);
-  useEffect(() => { let live = true; void Promise.all([reminderState(app.store.db), fromHour(app.store.db)]).then(([st, hour]) => { if (live) setRem({ st, hour: isFinite(hour) ? hour : FROM_HOUR }); }); return () => { live = false; }; }, [app]);
+  const [rem, setRem] = useState<Rem | null>(null);
+  useEffect(() => { let live = true; void Promise.all([reminderState(), fromHour()]).then(([st, hour]) => { if (live) setRem({ st, hour: isFinite(hour) ? hour : FROM_HOUR }); }); return () => { live = false; }; }, []);
   return <>
     <Head title="Profilo" />
     <div className="grid two">
