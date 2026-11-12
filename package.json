@@ -14,7 +14,8 @@
     "icons": "node scripts/make-icons.mjs",
     "test:schema": "bash scripts/check-schema.sh",
     "test:all": "npm run test:reference && npm run test && npm run test:e2e",
-    "test:supabase": "NODE_USE_ENV_PROXY=1 vitest run --config vitest.live.config.ts"
+    "test:supabase": "NODE_USE_ENV_PROXY=1 vitest run --config vitest.live.config.ts",
+    "test:deploy": "playwright test --config playwright.live.config.ts"
   },
   "dependencies": {
     "@fontsource/barlow": "^5.3.0",

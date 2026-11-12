@@ -12,9 +12,9 @@ La logica di allenamento è quella del prototipo in `reference/`, portata in Typ
 | 1 Dominio in TypeScript | fatta |
 | 2 App locale su IndexedDB | fatta |
 | 3 PWA | fatta (verificata su Chromium; da provare su un iPhone vero) |
-| 4 Account e sincronizzazione | codice e test pronti; il progetto Supabase risponde, ma **va ancora eseguito `supabase/schema.sql`** e fatto un accesso vero |
+| 4 Account e sincronizzazione | tabella creata e regole di accesso verificate sul progetto vero (`npm run test:supabase`: 5 su 5); **manca un accesso vero** da telefono e computer |
 | 5 `.ics`, promemoria, cambio data di gara | fatta |
-| 6 Pubblicazione | configurazione pronta; **manca il deploy** (vedi "Pubblicazione": consigliato Vercel) |
+| 6 Pubblicazione | pubblicata su https://project-marathon-blush.vercel.app (installabile, funziona offline); **la build va rifatta con le due variabili di Supabase**, altrimenti la scheda Account non compare |
 
 ## Avvio da zero
 
@@ -66,6 +66,12 @@ npm run test:supabase
 
 Controlli sul progetto Supabase vero indicato in `.env`, con la sola chiave pubblica e senza scrivere nulla: la tabella esiste, le richieste dell'app sono accettate, chi non ha fatto l'accesso non vede e non scrive, l'accesso via email è attivo.
 
+```bash
+DEPLOY_URL=https://project-marathon-blush.vercel.app npm run test:deploy
+```
+
+Controlli sull'app pubblicata, in un browser pulito e senza fare l'accesso: indirizzi e intestazioni, installabilità, uso offline, e che la build contenga la configurazione di Supabase (scheda Account visibile).
+
 ## Account e sincronizzazione (Supabase)
 
 1. Crea un progetto su Supabase.
@@ -106,7 +112,7 @@ Su qualunque hosting servono tre cose: le due variabili `VITE_SUPABASE_URL` e `V
 1. vai su vercel.com e scegli *Continue with GitHub*;
 2. *Add New… → Project*, poi *Import* accanto a `project-marathon`;
 3. apri *Environment Variables* e aggiungi `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` con i valori del tuo `.env`;
-4. *Deploy*. `vercel.json` contiene già build, cartella, reindirizzamento di tutti gli indirizzi su `index.html` e intestazioni di cache;
+4. *Deploy*. `vercel.json` contiene già build, cartella, reindirizzamento di tutti gli indirizzi su `index.html` e intestazioni di cache. Se le variabili le aggiungi dopo (*Settings → Environment Variables*), serve ripubblicare: *Deployments → ⋯ → Redeploy*. Le variabili vengono lette durante la build, non dopo;
 5. copia l'indirizzo che Vercel ti assegna (tipo `https://project-marathon-….vercel.app`).
 
 Da lì in poi ogni invio sul ramo principale del repository ripubblica l'app da solo.

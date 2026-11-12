@@ -39,9 +39,9 @@ Scelte tecniche dentro i paletti del prompt:
 | 1 | Dominio in TypeScript con test | Vitest riproduce `recovery.js` e gli scenari di `logic.js` | fatta |
 | 2 | App locale su IndexedDB, importazione del backup | flusso completo con i dati importati | fatta (`tests/e2e/flow.spec.ts`) |
 | 3 | PWA: manifest, icone, service worker | installabile; in modalità aereo si apre e salva | fatta su Chromium: Lighthouse 11.7.1 PWA 100, `tests/e2e/pwa.spec.ts`. Da provare su telefoni veri |
-| 4 | Account e sincronizzazione Supabase | telefono → computer; offline → online | codice e test pronti; progetto vero raggiunto, **tabella da creare e accesso vero da provare** |
+| 4 | Account e sincronizzazione Supabase | telefono → computer; offline → online | tabella e regole verificate sul progetto vero; **accesso vero da provare** |
 | 5 | `.ics`, promemoria locali, cambio data di gara | — | fatta |
-| 6 | Build, variabili d'ambiente, deploy, README | — | configurazione e README pronti; **deploy da fare** |
+| 6 | Build, variabili d'ambiente, deploy, README | — | pubblicata su Vercel; **build da rifare con le variabili di Supabase** |
 
 ## Decisioni prese lungo la strada (dimmi se una non ti va)
 
@@ -65,8 +65,14 @@ Scelte tecniche dentro i paletti del prompt:
 - Ora dei promemoria: si sceglie dal Profilo ("Non prima delle"). Con i promemoria attivi il calendario esportato porta un avviso alla stessa ora: su iPhone è il modo per avere un promemoria a orario ad app chiusa.
 - Serve solo iPhone: i file si consegnano con il foglio di condivisione di iOS; l'accesso nell'app installata usa il codice dell'email.
 
+## Stato al 12 novembre, dopo il deploy
+
+- Supabase: tabella `docs` creata; `npm run test:supabase` passa 5 su 5 (richieste dell'app accettate dall'API vera, chi non ha fatto l'accesso non vede e non scrive, accesso via email attivo, orario del server leggibile).
+- App pubblicata su https://project-marathon-blush.vercel.app: indirizzi, installabilità e uso offline verificati (`npm run test:deploy`: 2 su 3).
+- **La build pubblicata non contiene le variabili di Supabase**: la scheda Account non compare e l'app resta locale.
+
 ## Cosa manca per chiudere
 
-1. Eseguire `supabase/schema.sql` nel progetto (SQL Editor) e aggiungere `{{ .Token }}` ai modelli email *Confirm signup* e *Magic Link*.
-2. Pubblicare (Vercel) con le due variabili d'ambiente e riportare l'indirizzo in Supabase (*Site URL* e *Redirect URLs*).
+1. Vercel → Settings → Environment Variables: aggiungere `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`, poi Deployments → ⋯ → Redeploy.
+2. Supabase → Authentication: *Site URL* = indirizzo di Vercel, *Redirect URLs* = lo stesso seguito da `/profilo`; `{{ .Token }}` nei modelli email *Confirm signup* e *Magic Link*.
 3. Prova vera su iPhone: installazione, accesso con codice, allenamento che compare sul computer, uno registrato in modalità aereo che si sincronizza al ritorno della rete, notifica.
