@@ -85,7 +85,7 @@ Controlli sull'app pubblicata, in un browser pulito e senza fare l'accesso: indi
 cp .env.example .env
 ```
 
-In `VITE_SUPABASE_URL` va l'indirizzo base del progetto (`https://….supabase.co`), senza `/rest/v1/`. `.env` non va nel repository. I due valori sono pubblici per natura (finiscono nel codice inviato al browser): a proteggere i dati sono le regole di accesso della tabella, non la segretezza della chiave. La chiave `service_role` invece non va mai usata nell'app.
+In `VITE_SUPABASE_URL` va l'indirizzo base del progetto (`https://….supabase.co`); se lo copi con `/rest/v1/` in fondo viene sistemato da solo. Sull'hosting vanno bene anche i nomi senza prefisso (`SUPABASE_URL`, `SUPABASE_ANON_KEY`). `.env` non va nel repository. I due valori sono pubblici per natura (finiscono nel codice inviato al browser): a proteggere i dati sono le regole di accesso della tabella, non la segretezza della chiave. La chiave `service_role` invece non va mai usata nell'app.
 
 Il servizio email incluso in Supabase invia poche email all'ora e solo agli indirizzi dei membri del progetto: per un uso personale basta.
 

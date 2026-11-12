@@ -4,7 +4,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Coll } from './db';
 import type { AuthUser, DocHead, DocKey, Remote, RemoteAuth, RemoteDocs, RemoteRow } from './sync';
 
-const URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+// indirizzo base del progetto: si tollera che sia stato copiato con /rest/v1/ in fondo
+const URL = String(import.meta.env.VITE_SUPABASE_URL || '').trim().replace(/\/+$/, '').replace(/\/rest\/v1$/, '') || undefined;
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 const PAGE = 1000;
 
